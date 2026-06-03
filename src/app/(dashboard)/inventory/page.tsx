@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import DeleteProductButton from "@/components/inventory/DeleteProductButton";
 import RestockButton from "@/components/inventory/RestockButton";
 
-export const revalidate = 5;
+export const dynamic = "force-dynamic";
 
 const TYPE_BADGE_CLASS: Record<string, string> = {
   device: "badge badge-info",

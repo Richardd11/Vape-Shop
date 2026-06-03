@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 import type { Product } from "@/lib/types";
 
-export const revalidate = 5; // ISR: refresh every 5 seconds
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const supabase = await createClient();

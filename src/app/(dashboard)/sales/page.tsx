@@ -4,7 +4,7 @@ import { Search, FileText, ChevronRight, Filter, DollarSign, ReceiptText, Percen
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export const revalidate = 5;
+export const dynamic = "force-dynamic";
 
 export default async function SalesPage({
   searchParams,

@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowDownRight, ArrowUpRight, Activity, Package } from "luci
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-export const revalidate = 10;
+export const dynamic = "force-dynamic";
 
 export default async function StockMovementsPage() {
   const supabase = await createClient();

@@ -4,7 +4,7 @@ import Link from "next/link";
 import ProductForm from "@/components/inventory/ProductForm";
 import { redirect } from "next/navigation";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export default async function NewProductPage() {
   const supabase = await createClient();

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import ReferenceDataForm from "@/components/inventory/ReferenceDataForm";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export default async function ReferenceDataPage() {
   const supabase = await createClient();

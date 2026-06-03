@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import EditProductForm from "@/components/inventory/EditProductForm";
 import VariantEditor from "@/components/inventory/VariantEditor";
 
-export const revalidate = 5;
+export const dynamic = "force-dynamic";
 
 export default async function EditProductPage({
   params,
