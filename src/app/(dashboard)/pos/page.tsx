@@ -168,7 +168,7 @@ export default function POSPage() {
   const TYPE_FILTERS = [{ value: "all", label: "All" }, { value: "device", label: "Devices" }, { value: "juice", label: "E-Liquids" }, { value: "pod", label: "Pods" }, { value: "disposable", label: "Disposables" }];
 
   return (
-    <div className="flex flex-col md:flex-row h-[calc(100vh-3.5rem)] -m-4 md:-m-6 overflow-hidden">
+    <div className="flex flex-col md:flex-row h-full md:h-[calc(100vh-3.5rem)] -m-3 md:-m-6 overflow-hidden pb-14 md:pb-0">
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden border-r border-[var(--color-border-default)]">
         <div className="flex flex-col gap-3 p-4 border-b border-[var(--color-border-default)] shrink-0 bg-[var(--color-surface-raised)]">
           <div className="relative">
@@ -276,8 +276,8 @@ export default function POSPage() {
       </div>
 
       {/* Checkout Modal */}
-      <div className={cn("fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 transition-all duration-300", checkoutOpen ? "bg-black/80 backdrop-blur-sm" : "bg-transparent pointer-events-none")} onClick={() => setCheckoutOpen(false)}>
-        <div className={cn("card-glass w-full max-w-md p-6 transition-all duration-300", checkoutOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-8")} onClick={(e) => e.stopPropagation()}>
+      <div className={cn("fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300", checkoutOpen ? "bg-black/80 backdrop-blur-sm" : "bg-transparent pointer-events-none")} onClick={() => setCheckoutOpen(false)}>
+        <div className={cn("card-glass w-full max-w-md max-h-[85vh] overflow-y-auto p-6 mx-auto my-auto transition-all duration-300", checkoutOpen ? "opacity-100 scale-100" : "opacity-0 scale-95")} onClick={(e) => e.stopPropagation()}>
           {checkoutOpen && <>
             <div className="flex items-center justify-between mb-5"><h3 className="text-lg font-bold text-[var(--color-text-primary)]">Checkout</h3><button onClick={() => setCheckoutOpen(false)} className="text-[var(--color-text-tertiary)]"><X size={20} /></button></div>
             <div className="rounded-xl border border-[var(--color-border-default)] bg-[var(--color-surface-base)] p-3.5 mb-5">
