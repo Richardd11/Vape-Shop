@@ -96,17 +96,61 @@ export default function POSPage() {
       else if (paymentType === "gcash") { finalGcash = gcash || cartTotals.total; }
       else if (paymentType === "mixed") { finalCash = cash; finalGcash = gcash; finalChange = Math.max(0, (cash + gcash) - cartTotals.total); }
 
+      // Save sale first
       const res = await fetch("/api/sales", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cartItems, payment_type: paymentType, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total, cash_tendered: finalCash, gcash_amount: finalGcash, change_amount: +finalChange.toFixed(2), notes }),
+        body: JSON.stringify({ items: cartItems, payment_type: paymentType, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total, cash_tendered: paymentType !== "gcash" ? finalCash : null, gcash_amount: paymentType !== "cash" ? finalGcash : null, change_amount: +finalChange.toFixed(2), notes }),
       });
-      if (!res.ok) { const err = await res.json(); alert(err.error ?? "Failed to save sale"); return; }
+      if (!res.ok) { const err = await res.json(); alert(err.error ?? "Failed to save sale"); setSubmitting(false); return; }
       const sale = await res.json();
+
+      // PayMongo for GCash payments
+      if (paymentType === "gcash" && process.env.NEXT_PUBLIC_PAYMONGO_ENABLED === "true") {
+        const pmRes = await fetch("/api/paymongo/source", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: cartTotals.total, description: `Sale #${sale.id.substring(0, 8)}` }),
+        });
+        if (!pmRes.ok) { const err = await pmRes.json(); alert("PayMongo: " + (err.error ?? "Failed")); setSubmitting(false); return; }
+        const { sourceId, checkoutUrl } = await pmRes.json();
+        localStorage.setItem("paymongo_pending", JSON.stringify({ sourceId, saleId: sale.id, amount: cartTotals.total }));
+        clearCart(); setCheckoutOpen(false);
+        window.open(checkoutUrl, "_blank");
+        setToastMsg("Complete payment in GCash window"); setToastOpen(true);
+        setSubmitting(false);
+        return;
+      }
+
+      // Regular (cash/mixed) - show receipt
       setCompletedSale({ ...sale, items: cartItems, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total });
       setToastMsg(`Sale complete! Total: ${formatCurrency(cartTotals.total)}`); setToastOpen(true);
       clearCart(); setCheckoutOpen(false); loadProducts();
     } finally { setSubmitting(false); }
   }
+
+  // Check for returning PayMongo payment
+  useEffect(() => {
+    const pending = localStorage.getItem("paymongo_pending");
+    if (pending) {
+      const { sourceId, saleId, amount } = JSON.parse(pending);
+      localStorage.removeItem("paymongo_pending");
+      (async () => {
+        try {
+          const pmRes = await fetch("/api/paymongo/confirm", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sourceId, amount, saleId, description: `Sale #${saleId.substring(0, 8)}` }),
+          });
+          if (pmRes.ok) {
+            setToastMsg("GCash payment confirmed!");
+          } else {
+            const err = await pmRes.json();
+            setToastMsg("Payment pending - check GCash app");
+          }
+          setToastOpen(true);
+          loadProducts();
+        } catch { /* ignore */ }
+      })();
+    }
+  }, []);
 
   const changeAmount = (() => {
     const cash = parseFloat(cashTendered) || 0, gcash = parseFloat(gcashAmount) || 0;
@@ -244,7 +288,7 @@ export default function POSPage() {
             <div className="mb-4"><p className="text-xs font-semibold mb-2 text-[var(--color-text-tertiary)] uppercase tracking-wider">Payment Method</p>
               <div className="grid grid-cols-3 gap-2">
                 {(["cash", "gcash", "mixed"] as PaymentType[]).map((type) => (
-                  <button key={type} onClick={() => setPaymentType(type)} className={cn("flex flex-col items-center gap-1 py-3 rounded-xl text-xs font-semibold transition-all border", paymentType === type ? "bg-brand-500/10 border-brand-500/30 text-brand-400" : "bg-[var(--color-surface-base)] border-transparent text-[var(--color-text-tertiary)]")}><span className="text-lg">{PAYMENT_TYPE_ICONS[type]}</span>{PAYMENT_TYPE_LABELS[type]}</button>
+                  <button key={type} onClick={() => setPaymentType(type)} className={cn("flex flex-col items-center gap-1 py-3 rounded-xl text-xs font-semibold transition-all border", paymentType === type ? type === "gcash" ? "bg-blue-500/10 border-blue-500/30 text-blue-400" : "bg-brand-500/10 border-brand-500/30 text-brand-400" : "bg-[var(--color-surface-base)] border-transparent text-[var(--color-text-tertiary)]")}><span className="text-lg">{PAYMENT_TYPE_ICONS[type]}</span>{PAYMENT_TYPE_LABELS[type]}</button>
                 ))}
               </div>
             </div>

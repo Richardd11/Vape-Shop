@@ -100,16 +100,16 @@ export default async function InventoryPage({
 
         {/* Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full max-w-full table-fixed text-left border-collapse">
             <thead>
               <tr>
-                <th className="table-header-cell">Product</th>
-                <th className="table-header-cell">SKU</th>
-                <th className="table-header-cell">Type</th>
-                <th className="table-header-cell text-right">Price</th>
-                <th className="table-header-cell text-right">Stock</th>
-                <th className="table-header-cell text-center">Status</th>
-                {isAdmin && <th className="table-header-cell text-center">Actions</th>}
+                <th className="table-header-cell px-2 sm:px-4 w-[40%] sm:w-auto">Product</th>
+                <th className="table-header-cell px-2 sm:px-4 hidden sm:table-cell">SKU</th>
+                <th className="table-header-cell px-2 sm:px-4 hidden md:table-cell">Type</th>
+                <th className="table-header-cell px-2 sm:px-4 text-right w-[15%] sm:w-auto">Price</th>
+                <th className="table-header-cell px-2 sm:px-4 text-right w-[15%] sm:w-auto">Stock</th>
+                <th className="table-header-cell px-2 sm:px-4 text-center w-[15%] sm:w-auto">Status</th>
+                {isAdmin && <th className="table-header-cell px-2 sm:px-4 text-center w-[15%] sm:w-auto">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -121,7 +121,7 @@ export default async function InventoryPage({
                     key={p.id}
                     className="border-b border-[var(--color-border-subtle)] transition-colors hover:bg-white/[0.03] group"
                   >
-                    <td className="table-cell">
+                    <td className="table-cell px-2 sm:px-4">
                       <Link
                         href={isAdmin ? `/inventory/${p.id}` : "#"}
                         className={cn(
@@ -135,8 +135,8 @@ export default async function InventoryPage({
                       </Link>
                       <p className="text-xs mt-0.5 text-[var(--color-text-secondary)]">{p.brand_name}</p>
                     </td>
-                    <td className="table-cell font-mono text-xs text-[var(--color-text-secondary)]">{p.sku}</td>
-                    <td className="table-cell">
+                    <td className="table-cell font-mono text-xs text-[var(--color-text-secondary)] hidden sm:table-cell">{p.sku}</td>
+                    <td className="table-cell hidden md:table-cell">
                       <span className={TYPE_BADGE_CLASS[p.type] ?? "badge"}>
                         {PRODUCT_TYPE_LABELS[p.type as keyof typeof PRODUCT_TYPE_LABELS]}
                       </span>
@@ -165,11 +165,11 @@ export default async function InventoryPage({
                     </td>
                     <td className="table-cell text-center">
                       {isOut ? (
-                        <span className="badge badge-danger">Out of Stock</span>
+                        <span className="badge badge-danger">Out</span>
                       ) : isLow ? (
-                        <span className="badge badge-warning">Low Stock</span>
+                        <span className="badge badge-warning">Low</span>
                       ) : (
-                        <span className="badge badge-success">In Stock</span>
+                        <span className="badge badge-success">OK</span>
                       )}
                     </td>
                     {isAdmin && (

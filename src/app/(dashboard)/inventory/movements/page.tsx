@@ -43,12 +43,12 @@ export default async function StockMovementsPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[var(--color-border-subtle)] text-xs uppercase text-[var(--color-text-secondary)] bg-[var(--color-surface-base)]">
-                <th className="table-header-cell px-4 py-3 font-semibold">Date & Time</th>
-                <th className="table-header-cell px-4 py-3 font-semibold">Product & Variant</th>
+                <th className="table-header-cell px-4 py-3 font-semibold">Date</th>
+                <th className="table-header-cell px-4 py-3 font-semibold">Product</th>
                 <th className="table-header-cell px-4 py-3 font-semibold text-center">Type</th>
-                <th className="table-header-cell px-4 py-3 font-semibold text-right">Quantity</th>
-                <th className="table-header-cell px-4 py-3 font-semibold">Notes</th>
-                <th className="table-header-cell px-4 py-3 font-semibold">User</th>
+                <th className="table-header-cell px-4 py-3 font-semibold text-right">Qty</th>
+                <th className="table-header-cell px-4 py-3 font-semibold hidden md:table-cell">Notes</th>
+                <th className="table-header-cell px-4 py-3 font-semibold hidden md:table-cell">User</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -92,10 +92,10 @@ export default async function StockMovementsPage() {
                         {isAddition ? "+" : ""}{m.quantity}
                       </span>
                     </td>
-                    <td className="table-cell px-4 py-3 text-[var(--color-text-secondary)] text-xs truncate max-w-[200px]" title={m.notes || ""}>
+                    <td className="table-cell px-4 py-3 text-[var(--color-text-secondary)] text-xs truncate max-w-[200px] hidden md:table-cell" title={m.notes || ""}>
                       {m.notes || "-"}
                     </td>
-                    <td className="table-cell px-4 py-3 text-[var(--color-text-tertiary)] text-xs">
+                    <td className="table-cell px-4 py-3 text-[var(--color-text-tertiary)] text-xs hidden md:table-cell">
                       {(m.profiles as any)?.full_name || "System"}
                     </td>
                   </tr>

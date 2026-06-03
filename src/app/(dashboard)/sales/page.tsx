@@ -123,12 +123,12 @@ export default async function SalesPage({
 
         {/* Table */}
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full max-w-full text-left border-collapse">
             <thead>
               <tr>
-                <th className="table-header-cell">Date &amp; Time</th>
-                <th className="table-header-cell">Receipt No.</th>
-                <th className="table-header-cell">Cashier</th>
+                <th className="table-header-cell">Date</th>
+                <th className="table-header-cell hidden sm:table-cell">Receipt</th>
+                <th className="table-header-cell hidden sm:table-cell">Cashier</th>
                 <th className="table-header-cell text-center">Payment</th>
                 <th className="table-header-cell text-right">Total</th>
                 <th className="table-header-cell"></th>
@@ -141,12 +141,12 @@ export default async function SalesPage({
                   className="border-b border-[var(--color-border-subtle)] transition-colors hover:bg-white/[0.03] group"
                 >
                   <td className="table-cell whitespace-nowrap">
-                    <p className="font-medium text-[var(--color-text-primary)]">{formatDateTime(sale.created_at)}</p>
+                    <p className="font-medium text-[var(--color-text-primary)] text-sm">{formatDateTime(sale.created_at)}</p>
                   </td>
-                  <td className="table-cell font-mono text-xs text-[var(--color-text-secondary)]">
+                  <td className="table-cell font-mono text-xs text-[var(--color-text-secondary)] hidden sm:table-cell">
                     #{sale.id.substring(0, 8).toUpperCase()}
                   </td>
-                  <td className="table-cell text-[var(--color-text-secondary)]">
+                  <td className="table-cell text-[var(--color-text-secondary)] hidden sm:table-cell">
                     {(sale.profiles as any)?.full_name ?? "Unknown"}
                   </td>
                   <td className="table-cell text-center">
