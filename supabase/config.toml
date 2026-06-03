@@ -1,0 +1,11 @@
+# Supabase project configuration
+project_id = "cjcptrcqvzxtilqcnyqk"
+
+[db]
+major_version = 15
+
+[api]
+enabled = true
+
+[auth]
+enabled = true
