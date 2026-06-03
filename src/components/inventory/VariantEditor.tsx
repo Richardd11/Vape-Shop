@@ -167,9 +167,9 @@ export default function VariantEditor({ productId, variants }: { productId: stri
               <div className="flex items-center gap-3">
                 {/* Stock controls */}
                 <div className="flex items-center gap-1">
-                  <button onClick={() => update(v.id, "stock", Math.max(0, e.stock - 5))} disabled={e.stock <= 0} className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] disabled:opacity-30 transition-colors active:bg-red-500/10"><Minus size={12} /></button>
+                  <button onClick={() => update(v.id, "stock", Math.max(0, e.stock - 1))} disabled={e.stock <= 0} className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] disabled:opacity-30 transition-colors active:bg-red-500/10"><Minus size={12} /></button>
                   <input type="number" value={e.stock} onChange={(ev) => update(v.id, "stock", Math.max(0, parseInt(ev.target.value) || 0))} min={0} className={cn("w-14 text-center text-sm font-bold py-1.5 rounded-lg border bg-[var(--color-surface-root)] border-[var(--color-border-default)] text-[var(--color-text-primary)] focus:border-brand-500/50 focus:outline-none", e.stock > v.stock && "text-green-400 border-green-500/30", e.stock < v.stock && "text-red-400 border-red-500/30")} />
-                  <button onClick={() => update(v.id, "stock", e.stock + 5)} className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] transition-colors active:bg-green-500/10"><Plus size={12} /></button>
+                  <button onClick={() => update(v.id, "stock", e.stock + 1)} className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] transition-colors active:bg-green-500/10"><Plus size={12} /></button>
                 </div>
 
                 {/* Price input */}

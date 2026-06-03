@@ -57,7 +57,36 @@ export async function PUT(
   if (variants) {
     for (const v of variants) {
       if (v.id) {
+        // Get old stock before update
+        const { data: oldVariant } = await supabase
+          .from("product_variants")
+          .select("stock")
+          .eq("id", v.id)
+          .single();
+
+        const oldStock = oldVariant?.stock ?? 0;
+        const newStock = v.stock ?? oldStock;
+
+        // Update variant
         await supabase.from("product_variants").update({ ...v, product_id: id }).eq("id", v.id);
+
+        // Log stock movement if stock changed
+        if (newStock !== oldStock) {
+          const diff = newStock - oldStock;
+          const movementType = diff > 0 ? "purchase_in" : "adjustment";
+          const notes = diff > 0 
+            ? `Manual restock: ${oldStock} → ${newStock} (+${diff})`
+            : `Stock adjusted: ${oldStock} → ${newStock} (${diff})`;
+
+          await supabase.from("inventory_movements").insert({
+            product_id: id,
+            variant_id: v.id,
+            type: movementType,
+            quantity: diff,
+            notes,
+            performed_by: user.id,
+          });
+        }
       } else {
         await supabase.from("product_variants").insert({ ...v, product_id: id });
       }
