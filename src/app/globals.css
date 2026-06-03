@@ -395,6 +395,11 @@
     50%      { box-shadow: 0 0 24px rgba(99,102,241,0.35); }
   }
 
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-20px) scale(1.03); }
+  }
+
   /* ── Responsive helpers ── */
   .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
