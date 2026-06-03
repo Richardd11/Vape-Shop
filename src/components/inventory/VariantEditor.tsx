@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Save, Loader2, Plus, Minus, ToggleLeft, ToggleRight } from "lucide-react";
 import { cn, formatCurrency, getVariantLabel } from "@/lib/utils";
 
@@ -20,9 +19,9 @@ interface Variant {
 }
 
 export default function VariantEditor({ productId, variants }: { productId: string; variants: Variant[] }) {
-  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
   const [edited, setEdited] = useState<Record<string, { stock: number; price: number | null; active: boolean }>>(() => {
     const init: Record<string, { stock: number; price: number | null; active: boolean }> = {};
     for (const v of variants) {
@@ -43,6 +42,7 @@ export default function VariantEditor({ productId, variants }: { productId: stri
   async function handleSave() {
     setSaving(true);
     setError(null);
+    setSuccess(false);
     try {
       const payload = variants
         .filter((v) => {
@@ -69,10 +69,10 @@ export default function VariantEditor({ productId, variants }: { productId: stri
         throw new Error(data.error || "Failed to update variants");
       }
 
-      router.refresh();
+      setSuccess(true);
+      setTimeout(() => window.location.reload(), 300);
     } catch (err: any) {
       setError(err.message);
-    } finally {
       setSaving(false);
     }
   }
@@ -81,19 +81,30 @@ export default function VariantEditor({ productId, variants }: { productId: stri
 
   return (
     <div className="card p-4 md:p-6 mt-4">
-      <div className="flex items-center justify-between mb-4">
-        <div>
+      {/* Header with Save */}
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <div className="min-w-0">
           <h2 className="text-base md:text-lg font-bold text-[var(--color-text-primary)]">Variants ({variants.length})</h2>
-          <p className="text-xs text-[var(--color-text-tertiary)] mt-0.5">Edit stock, prices, and status</p>
+          <p className="text-xs text-[var(--color-text-tertiary)] mt-0.5 hidden sm:block">Edit stock, prices, and status</p>
         </div>
         <button
           onClick={handleSave}
           disabled={saving || changedCount === 0}
-          className={cn("btn btn-brand text-xs md:text-sm", changedCount === 0 && "opacity-40 pointer-events-none")}
+          className={cn(
+            "flex items-center gap-1.5 rounded-xl font-semibold text-sm transition-all duration-200 shrink-0",
+            "py-2.5 px-4 sm:py-2 sm:px-3.5",
+            changedCount === 0 || saving
+              ? "bg-[var(--color-surface-base)] text-[var(--color-text-tertiary)] cursor-not-allowed"
+              : "bg-brand-500 text-white hover:bg-brand-600 active:scale-95 shadow-lg shadow-brand-500/20"
+          )}
         >
-          {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-          <span className="hidden sm:inline">{changedCount > 0 ? ` Save (${changedCount})` : " Save"}</span>
-          <span className="sm:hidden">{changedCount > 0 ? ` ${changedCount}` : ""}</span>
+          {saving ? (
+            <><Loader2 size={16} className="animate-spin" /> Saving...</>
+          ) : success ? (
+            "Saved!"
+          ) : (
+            <><Save size={16} /> Save{changedCount > 0 ? ` (${changedCount})` : ""}</>
+          )}
         </button>
       </div>
 
@@ -158,24 +169,23 @@ export default function VariantEditor({ productId, variants }: { productId: stri
                   <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">{getVariantLabel(v as any)}</p>
                   {v.sku_variant && <p className="text-[0.65rem] text-[var(--color-text-tertiary)] mt-0.5 font-mono">{v.sku_variant}</p>}
                 </div>
-                <button onClick={() => update(v.id, "active", !e.active)} className={cn("shrink-0 transition-colors ml-2", e.active ? "text-green-400" : "text-red-400")}>
-                  {e.active ? <ToggleRight size={24} /> : <ToggleLeft size={24} />}
+                <button onClick={() => update(v.id, "active", !e.active)} className="shrink-0 transition-colors ml-2 p-1">
+                  {e.active ? <ToggleRight size={28} className="text-green-400" /> : <ToggleLeft size={28} className="text-red-400" />}
                 </button>
               </div>
 
-              {/* Stock & Price row */}
-              <div className="flex items-center gap-3">
-                {/* Stock controls */}
-                <div className="flex items-center gap-1">
-                  <button onClick={() => update(v.id, "stock", Math.max(0, e.stock - 1))} disabled={e.stock <= 0} className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] disabled:opacity-30 transition-colors active:bg-red-500/10"><Minus size={12} /></button>
+              {/* Stock controls */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <button onClick={() => update(v.id, "stock", Math.max(0, e.stock - 1))} disabled={e.stock <= 0} className="w-9 h-9 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] disabled:opacity-30 active:bg-red-500/10 transition-colors"><Minus size={16} /></button>
                   <input type="number" value={e.stock} onChange={(ev) => update(v.id, "stock", Math.max(0, parseInt(ev.target.value) || 0))} min={0} className={cn("w-14 text-center text-sm font-bold py-1.5 rounded-lg border bg-[var(--color-surface-root)] border-[var(--color-border-default)] text-[var(--color-text-primary)] focus:border-brand-500/50 focus:outline-none", e.stock > v.stock && "text-green-400 border-green-500/30", e.stock < v.stock && "text-red-400 border-red-500/30")} />
-                  <button onClick={() => update(v.id, "stock", e.stock + 1)} className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] transition-colors active:bg-green-500/10"><Plus size={12} /></button>
+                  <button onClick={() => update(v.id, "stock", e.stock + 1)} className="w-9 h-9 rounded-lg flex items-center justify-center bg-[var(--color-surface-root)] border border-[var(--color-border-default)] text-[var(--color-text-secondary)] active:bg-green-500/10 transition-colors"><Plus size={16} /></button>
                 </div>
 
                 {/* Price input */}
-                <div className="flex items-center gap-1.5 flex-1 justify-end">
+                <div className="flex items-center gap-1">
                   <span className="text-xs text-[var(--color-text-tertiary)]">₱</span>
-                  <input type="number" value={e.price ?? ""} onChange={(ev) => { const val = ev.target.value ? parseFloat(ev.target.value) : null; update(v.id, "price", val); }} placeholder={formatCurrency(0)} min={0} step={0.01} className={cn("w-full max-w-[110px] text-right text-sm font-medium py-1.5 px-2 rounded-lg border bg-[var(--color-surface-root)] border-[var(--color-border-default)] text-[var(--color-text-primary)] focus:border-brand-500/50 focus:outline-none", e.price !== v.price_override && "text-brand-400 border-brand-500/30")} />
+                  <input type="number" value={e.price ?? ""} onChange={(ev) => { const val = ev.target.value ? parseFloat(ev.target.value) : null; update(v.id, "price", val); }} placeholder={formatCurrency(0)} min={0} step={0.01} className={cn("w-24 text-right text-sm font-medium py-1.5 px-2 rounded-lg border bg-[var(--color-surface-root)] border-[var(--color-border-default)] text-[var(--color-text-primary)] focus:border-brand-500/50 focus:outline-none", e.price !== v.price_override && "text-brand-400 border-brand-500/30")} />
                 </div>
               </div>
             </div>
