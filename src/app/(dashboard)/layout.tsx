@@ -30,7 +30,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--color-surface-root)]">
       <Sidebar profile={profile} />
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0">
         <Header profile={profile} />
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-3 md:p-6">
           {children}
