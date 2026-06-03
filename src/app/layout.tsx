@@ -13,6 +13,10 @@ export const metadata: Metadata = {
   title: "VapeShop POS",
   description: "Point of Sale and Inventory Management System for Vape Shops",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon-192x192.png",
+    apple: "/icons/icon-192x192.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
