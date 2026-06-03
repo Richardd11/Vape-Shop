@@ -38,36 +38,36 @@ export default async function ReferenceDataPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         {/* Brands */}
-        <div className="card border border-[var(--color-border-default)] flex flex-col h-[500px]">
-          <div className="p-4 border-b border-[var(--color-border-subtle)] flex items-center gap-2">
-            <Tag size={18} className="text-indigo-400" />
-            <h2 className="font-semibold text-[var(--color-text-primary)]">Brands</h2>
+        <div className="card border border-[var(--color-border-default)] flex flex-col h-[400px] md:h-[500px]">
+          <div className="p-3 md:p-4 border-b border-[var(--color-border-subtle)] flex items-center gap-2">
+            <Tag size={16} className="text-indigo-400" />
+            <h2 className="font-semibold text-sm md:text-base text-[var(--color-text-primary)]">Brands</h2>
           </div>
-          <div className="p-4 flex-1 overflow-y-auto">
+          <div className="p-3 md:p-4 flex-1 overflow-y-auto">
             <ReferenceDataForm type="brands" items={brands ?? []} />
           </div>
         </div>
 
         {/* Categories */}
-        <div className="card border border-[var(--color-border-default)] flex flex-col h-[500px]">
-          <div className="p-4 border-b border-[var(--color-border-subtle)] flex items-center gap-2">
-            <Layers size={18} className="text-blue-400" />
-            <h2 className="font-semibold text-[var(--color-text-primary)]">Categories</h2>
+        <div className="card border border-[var(--color-border-default)] flex flex-col h-[400px] md:h-[500px]">
+          <div className="p-3 md:p-4 border-b border-[var(--color-border-subtle)] flex items-center gap-2">
+            <Layers size={16} className="text-blue-400" />
+            <h2 className="font-semibold text-sm md:text-base text-[var(--color-text-primary)]">Categories</h2>
           </div>
-          <div className="p-4 flex-1 overflow-y-auto">
+          <div className="p-3 md:p-4 flex-1 overflow-y-auto">
             <ReferenceDataForm type="categories" items={categories ?? []} />
           </div>
         </div>
 
         {/* Flavors */}
-        <div className="card border border-[var(--color-border-default)] flex flex-col h-[500px]">
-          <div className="p-4 border-b border-[var(--color-border-subtle)] flex items-center gap-2">
-            <Droplet size={18} className="text-purple-400" />
-            <h2 className="font-semibold text-[var(--color-text-primary)]">Flavors</h2>
+        <div className="card border border-[var(--color-border-default)] flex flex-col h-[400px] md:h-[500px]">
+          <div className="p-3 md:p-4 border-b border-[var(--color-border-subtle)] flex items-center gap-2">
+            <Droplet size={16} className="text-purple-400" />
+            <h2 className="font-semibold text-sm md:text-base text-[var(--color-text-primary)]">Flavors</h2>
           </div>
-          <div className="p-4 flex-1 overflow-y-auto">
+          <div className="p-3 md:p-4 flex-1 overflow-y-auto">
             <ReferenceDataForm type="flavors" items={flavors ?? []} />
           </div>
         </div>
