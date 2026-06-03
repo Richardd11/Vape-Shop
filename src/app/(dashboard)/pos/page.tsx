@@ -258,12 +258,12 @@ export default function POSPage() {
       </div>
 
       {/* Variant Picker */}
-      <div className={cn("fixed inset-0 z-50 flex items-end md:items-center justify-center p-4 transition-all duration-300", variantPickerProduct ? "bg-black/70 backdrop-blur-sm" : "bg-transparent pointer-events-none")} onClick={() => setVariantPickerProduct(null)}>
-        <div className={cn("card-glass w-full max-w-sm p-5 transition-all duration-300", variantPickerProduct ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-8")} onClick={(e) => e.stopPropagation()}>
+      <div className={cn("fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300", variantPickerProduct ? "bg-black/70 backdrop-blur-sm" : "bg-transparent pointer-events-none")} onClick={() => setVariantPickerProduct(null)}>
+        <div className={cn("card-glass w-full max-w-sm max-h-[85vh] flex flex-col p-5 mx-auto my-auto transition-all duration-300", variantPickerProduct ? "opacity-100 scale-100" : "opacity-0 scale-95")} onClick={(e) => e.stopPropagation()}>
           {variantPickerProduct && <>
-            <div className="flex items-center justify-between mb-4"><h3 className="font-semibold text-[var(--color-text-primary)] text-sm">{variantPickerProduct.name}</h3><button onClick={() => setVariantPickerProduct(null)} className="text-[var(--color-text-tertiary)]"><X size={18} /></button></div>
-            <p className="text-xs text-[var(--color-text-secondary)] mb-3">Select a variant:</p>
-            <div className="flex flex-col gap-2 max-h-72 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4 shrink-0"><h3 className="font-semibold text-[var(--color-text-primary)] text-sm">{variantPickerProduct.name}</h3><button onClick={() => setVariantPickerProduct(null)} className="text-[var(--color-text-tertiary)]"><X size={18} /></button></div>
+            <p className="text-xs text-[var(--color-text-secondary)] mb-3 shrink-0">Select a variant:</p>
+            <div className="flex flex-col gap-2 overflow-y-auto min-h-0 flex-1">
               {variantPickerProduct.product_variants.filter((v: any) => v.is_active).map((variant: any) => (
                 <button key={variant.id} onClick={() => addToCart(variantPickerProduct, variant)} disabled={variant.stock <= 0} className={cn("flex items-center justify-between p-3 rounded-lg text-sm transition-all border bg-[var(--color-surface-base)] border-[var(--color-border-default)]", variant.stock <= 0 ? "opacity-40 cursor-not-allowed" : "hover:border-brand-500/50 cursor-pointer")}>
                   <div className="text-left"><p className="font-medium text-[var(--color-text-primary)]">{getVariantLabel(variant)}</p><p className={cn("text-xs mt-0.5", variant.stock <= 0 ? "text-[var(--color-danger)]" : "text-[var(--color-text-tertiary)]")}>{variant.stock <= 0 ? "Out of stock" : `${variant.stock} in stock`}</p></div>
