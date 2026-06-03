@@ -24,6 +24,7 @@ export default function DeleteProductButton({ productId, productName }: DeletePr
         alert(data.error || "Failed to delete product");
       }
       router.refresh();
+      setTimeout(() => window.location.reload(), 500);
     } catch (err: any) {
       alert(err.message || "Failed to delete product");
     } finally {

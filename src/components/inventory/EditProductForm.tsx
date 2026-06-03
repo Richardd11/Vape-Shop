@@ -116,6 +116,7 @@ export default function EditProductForm({ product, brands, categories }: EditPro
 
       router.push("/inventory");
       router.refresh();
+      setTimeout(() => window.location.reload(), 500);
     } catch (err: any) {
       setError(err.message);
       setSubmitting(false);
@@ -131,6 +132,7 @@ export default function EditProductForm({ product, brands, categories }: EditPro
       if (!res.ok) throw new Error("Failed to delete product");
       router.push("/inventory");
       router.refresh();
+      setTimeout(() => window.location.reload(), 500);
     } catch (err: any) {
       setError(err.message);
       setDeleting(false);

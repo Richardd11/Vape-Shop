@@ -164,6 +164,7 @@ export default function ProductForm({ brands, categories, flavors }: ProductForm
 
       router.push("/inventory");
       router.refresh();
+      setTimeout(() => window.location.reload(), 500);
     } catch (err: any) {
       setError(err.message);
       setSubmitting(false);

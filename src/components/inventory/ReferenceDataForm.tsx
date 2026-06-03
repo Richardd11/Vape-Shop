@@ -32,6 +32,7 @@ export default function ReferenceDataForm({ type, items }: ReferenceDataFormProp
         setNewName("");
         setAdding(false);
         router.refresh();
+        setTimeout(() => window.location.reload(), 500);
       } else {
         const data = await res.json();
         alert(data.error || "Failed to add item");
@@ -50,6 +51,7 @@ export default function ReferenceDataForm({ type, items }: ReferenceDataFormProp
       });
       if (res.ok) {
         router.refresh();
+        setTimeout(() => window.location.reload(), 500);
       } else {
         const data = await res.json();
         alert(data.error || "Failed to delete item (likely in use)");

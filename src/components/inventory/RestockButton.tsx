@@ -101,6 +101,8 @@ export default function RestockButton({ productId, productName }: { productId: s
 
       router.refresh();
       closeModal();
+      // Force reload after short delay if router.refresh doesn't work
+      setTimeout(() => window.location.reload(), 500);
     } catch (err: any) {
       setError(err.message);
     } finally {
