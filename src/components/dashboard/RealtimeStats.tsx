@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useRealtimeSales, useRealtimeProducts } from "@/lib/realtime";
 import { useRefreshListener } from "@/lib/refreshBus";
+import { useAutoRefresh } from "@/lib/useAutoRefresh";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function RealtimeStats({
@@ -28,33 +29,26 @@ export default function RealtimeStats({
     lowStockCount: initialLowStockCount,
     productCount: initialProductCount,
   });
-  const mountedRef = useRef(false);
 
   const fetchStats = useCallback(async () => {
     const res = await fetch("/api/reports/dashboard", { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
       setStats({
-        todayRevenue: data.todayRevenue ?? 0,
-        todayCount: data.todayCount ?? 0,
-        monthRevenue: data.monthRevenue ?? 0,
-        monthCount: data.monthCount ?? 0,
-        lowStockCount: data.lowStockCount ?? 0,
-        productCount: data.productCount ?? 0,
+        todayRevenue: data.today?.revenue ?? 0,
+        todayCount: data.today?.transactions ?? 0,
+        monthRevenue: data.month?.revenue ?? 0,
+        monthCount: data.month?.transactions ?? 0,
+        lowStockCount: data.low_stock_count ?? 0,
+        productCount: data.total_products ?? 0,
       });
     }
   }, []);
 
-  useEffect(() => {
-    if (mountedRef.current) {
-      fetchStats();
-    }
-    mountedRef.current = true;
-  }, [fetchStats]);
-
   useRealtimeSales(() => fetchStats());
   useRealtimeProducts(() => fetchStats());
   useRefreshListener("dashboard", fetchStats);
+  useAutoRefresh(fetchStats);
 
   return null;
 }

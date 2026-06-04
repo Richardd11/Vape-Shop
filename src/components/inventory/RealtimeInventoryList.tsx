@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRealtimeProducts } from "@/lib/realtime";
 import { useRefreshListener } from "@/lib/refreshBus";
+import { useAutoRefresh } from "@/lib/useAutoRefresh";
 import { formatCurrency, PRODUCT_TYPE_LABELS, PRODUCT_TYPE_COLORS, cn } from "@/lib/utils";
 import { Search, Package, AlertTriangle, ChevronRight, Edit3, Plus, ArrowRightLeft } from "lucide-react";
 import Link from "next/link";
@@ -63,6 +64,7 @@ export default function RealtimeInventoryList({
     setLoading(false);
   }, [q, type]);
 
+  // Refetch when the search/type filters change (mount/focus/polling below).
   useEffect(() => {
     if (mountedRef.current) {
       fetchProducts();
@@ -72,6 +74,9 @@ export default function RealtimeInventoryList({
 
   useRealtimeProducts(() => fetchProducts());
   useRefreshListener("inventory", fetchProducts);
+  // Auto reconcile on mount, focus, tab visibility and a polling interval so
+  // edits/restocks show up without a manual refresh.
+  useAutoRefresh(fetchProducts);
 
   const activeType = type || "all";
 
