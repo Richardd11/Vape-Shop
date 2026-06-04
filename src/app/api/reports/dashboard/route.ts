@@ -17,6 +17,7 @@ export async function GET() {
     { data: topProducts },
     { data: lowStock },
     { count: totalProducts },
+    { data: recentSales },
   ] = await Promise.all([
     supabase.from("sales").select("total_amount, discount_amount")
       .eq("status", "completed").gte("created_at", `${todayStr}T00:00:00`),
@@ -28,11 +29,17 @@ export async function GET() {
       .lt("created_at", monthStart),
     supabase.from("sale_items")
       .select("product_id, product_name, quantity, line_total")
+      .gte("created_at", monthStart)
       .order("quantity", { ascending: false })
       .limit(10),
     supabase.from("products_with_stock").select("id, name, total_stock, low_stock_alert, type")
       .filter("total_stock", "lt", 5).eq("is_active", true),
     supabase.from("products").select("id", { count: "exact", head: true }).eq("is_active", true),
+    supabase.from("sales")
+      .select("id, total_amount, payment_type, created_at, profiles(full_name)")
+      .eq("status", "completed")
+      .order("created_at", { ascending: false })
+      .limit(5),
   ]);
 
   const todayRevenue = todaySales?.reduce((s, r) => s + r.total_amount, 0) ?? 0;
@@ -70,5 +77,6 @@ export async function GET() {
     low_stock_count: lowStock?.length ?? 0,
     top_products: topProductsList,
     low_stock_items: lowStock ?? [],
+    recent_sales: recentSales ?? [],
   });
 }

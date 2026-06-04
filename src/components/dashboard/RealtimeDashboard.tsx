@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useRealtimeSales, useRealtimeProducts } from "@/lib/realtime";
 import { formatCurrency, formatDate, PRODUCT_TYPE_LABELS, PRODUCT_TYPE_COLORS, cn } from "@/lib/utils";
 import { TrendingUp, ShoppingBag, Package, AlertTriangle, ArrowUpRight, Calendar, BarChart2, Plus } from "lucide-react";
@@ -36,35 +36,26 @@ interface DashboardData {
 
 export default function RealtimeDashboard({ initialData }: { initialData: DashboardData }) {
   const [data, setData] = useState<DashboardData>(initialData);
-  const mountedRef = useRef(false);
 
-  const fetchData = useCallback(async () => {
+  const fetchDashboard = useCallback(async () => {
     const res = await fetch("/api/reports/dashboard");
     if (res.ok) {
       const json = await res.json();
-      setData((prev) => ({
-        ...prev,
-        todayRevenue: json.today?.revenue ?? prev.todayRevenue,
-        todayCount: json.today?.transactions ?? prev.todayCount,
-        monthRevenue: json.month?.revenue ?? prev.monthRevenue,
-        monthCount: json.month?.transactions ?? prev.monthCount,
-        lowStockProducts: json.low_stock_items ?? prev.lowStockProducts,
-        productCount: json.total_products ?? prev.productCount,
-        recentSales: prev.recentSales,
-        topProducts: json.top_products ?? prev.topProducts,
-      }));
+      setData({
+        todayRevenue: json.today?.revenue ?? 0,
+        todayCount: json.today?.transactions ?? 0,
+        monthRevenue: json.month?.revenue ?? 0,
+        monthCount: json.month?.transactions ?? 0,
+        lowStockProducts: json.low_stock_items ?? [],
+        productCount: json.total_products ?? 0,
+        recentSales: json.recent_sales ?? [],
+        topProducts: json.top_products ?? [],
+      });
     }
   }, []);
 
-  useEffect(() => {
-    if (mountedRef.current) {
-      fetchData();
-    }
-    mountedRef.current = true;
-  }, [fetchData]);
-
-  useRealtimeSales(() => fetchData());
-  useRealtimeProducts(() => fetchData());
+  useRealtimeSales(() => fetchDashboard());
+  useRealtimeProducts(() => fetchDashboard());
 
   const { todayRevenue, todayCount, monthRevenue, monthCount, lowStockProducts, recentSales, productCount } = data;
 

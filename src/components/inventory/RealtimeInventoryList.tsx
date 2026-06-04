@@ -53,9 +53,10 @@ export default function RealtimeInventoryList({
     if (type && type !== "all") params.set("type", type);
     const res = await fetch(`/api/products?${params}`);
     if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setProducts(data);
+      const json = await res.json();
+      const list = json.data ?? json;
+      if (Array.isArray(list)) {
+        setProducts(list);
       }
     }
     setLoading(false);

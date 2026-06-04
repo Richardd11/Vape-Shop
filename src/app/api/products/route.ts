@@ -13,14 +13,18 @@ export async function GET(request: NextRequest) {
   const lowStock = searchParams.get("low_stock") === "true";
   const activeOnly = searchParams.get("active_only") !== "false";
   const view = searchParams.get("view") ?? "";
+  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1"));
+  const limit = Math.min(200, Math.max(1, parseInt(searchParams.get("limit") ?? "100")));
+  const from = (page - 1) * limit;
 
   // Use products_with_stock view for inventory-style flat data
   if (view === "with_stock") {
     let query = supabase
       .from("products_with_stock")
-      .select("*")
+      .select("*", { count: "exact" })
       .eq("is_active", true)
-      .order("name");
+      .order("name")
+      .range(from, from + limit - 1);
 
     if (search) {
       query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
@@ -29,9 +33,9 @@ export async function GET(request: NextRequest) {
       query = query.eq("type", type);
     }
 
-    const { data, error } = await query;
+    const { data, error, count } = await query;
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json(data ?? []);
+    return NextResponse.json({ data: data ?? [], count, page, limit });
   }
 
   let query = supabase
@@ -41,8 +45,9 @@ export async function GET(request: NextRequest) {
       brands(id, name),
       categories(id, name),
       product_variants(*, flavors(id, name))
-    `)
-    .order("name");
+    `, { count: "exact" })
+    .order("name")
+    .range(from, from + limit - 1);
 
   if (activeOnly) query = query.eq("is_active", true);
   if (type) query = query.eq("type", type);
@@ -52,7 +57,7 @@ export async function GET(request: NextRequest) {
     query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error, count } = await query;
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -65,7 +70,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  return NextResponse.json(products);
+  return NextResponse.json({ data: products, count, page, limit });
 }
 
 // POST /api/products — create product with variants

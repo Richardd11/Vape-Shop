@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from("sales")
-    .select(`*, profiles(full_name), sale_items(*)`, { count: "exact" })
+    .select(`*, profiles(full_name)`, { count: "exact" })
     .eq("status", "completed")
     .order("created_at", { ascending: false })
     .range(from, from + limit - 1);
@@ -82,26 +82,13 @@ export async function POST(request: NextRequest) {
   const { error: itemsError } = await supabase.from("sale_items").insert(saleItems);
   if (itemsError) return NextResponse.json({ error: itemsError.message }, { status: 500 });
 
-  // Decrement stock per variant (or product if no variant)
-  for (const item of items as CartItem[]) {
-    if (item.variant?.id) {
-      await supabase.rpc("decrement_variant_stock", {
-        p_variant_id: item.variant.id,
-        p_quantity: item.quantity,
-      });
-
-      // Log inventory movement
-      await supabase.from("inventory_movements").insert({
-        product_id: item.product.id,
-        variant_id: item.variant.id,
-        type: "sale",
-        quantity: -item.quantity,
-        notes: `Sale #${sale.id.substring(0, 8)}`,
-        reference_id: sale.id,
-        performed_by: user.id,
-      });
-    }
-  }
+  // Batch-decrement stock + log inventory (single DB round-trip)
+  const { error: processError } = await supabase.rpc("process_sale_items", {
+    p_items: JSON.parse(JSON.stringify(items)),
+    p_sale_id: sale.id,
+    p_performed_by: user.id,
+  });
+  if (processError) return NextResponse.json({ error: processError.message }, { status: 500 });
 
   return NextResponse.json(sale, { status: 201 });
 }
