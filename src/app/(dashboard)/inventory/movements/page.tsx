@@ -82,7 +82,15 @@ export default async function StockMovementsPage() {
                         {isAddition ? "+" : ""}{m.quantity}
                       </span>
                     </td>
-                    <td className="table-cell px-4 py-3 text-[var(--color-text-secondary)] text-xs truncate max-w-[200px]" title={m.notes || ""}>{m.notes || "-"}</td>
+                    <td className="table-cell px-4 py-3 text-[var(--color-text-secondary)] text-xs truncate max-w-[200px]">
+                      {m.type === "sale" && m.reference_id ? (
+                        <Link href={`/sales/${m.reference_id}`} className="font-mono text-brand-400 hover:text-brand-300">
+                          Sale #{String(m.reference_id).substring(0, 8).toUpperCase()}
+                        </Link>
+                      ) : (
+                        <span title={m.notes || ""}>{m.notes || "-"}</span>
+                      )}
+                    </td>
                     <td className="table-cell px-4 py-3 text-[var(--color-text-tertiary)] text-xs">{(m.profiles as any)?.full_name || "System"}</td>
                   </tr>
                 );
@@ -127,7 +135,13 @@ export default async function StockMovementsPage() {
                     <span>{formatDateTime(m.created_at)}</span>
                     <span>by {(m.profiles as any)?.full_name || "System"}</span>
                   </div>
-                  {m.notes && <p className="text-xs text-[var(--color-text-secondary)] mt-1.5 p-2 rounded-lg bg-[var(--color-surface-base)] border border-[var(--color-border-subtle)]">{m.notes}</p>}
+                  {m.type === "sale" && m.reference_id ? (
+                    <Link href={`/sales/${m.reference_id}`} className="inline-block font-mono text-xs text-brand-400 mt-1.5">
+                      Sale #{String(m.reference_id).substring(0, 8).toUpperCase()}
+                    </Link>
+                  ) : m.notes ? (
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-1.5 p-2 rounded-lg bg-[var(--color-surface-base)] border border-[var(--color-border-subtle)]">{m.notes}</p>
+                  ) : null}
                 </div>
                 <span className={cn("text-sm font-bold shrink-0 flex items-center gap-1", isAddition ? "text-success" : "text-danger")}>
                   {isAddition ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
