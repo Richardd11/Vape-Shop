@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRealtimeSales, useRealtimeProducts } from "@/lib/realtime";
 import { useRefreshListener } from "@/lib/refreshBus";
+import { useAutoRefresh } from "@/lib/useAutoRefresh";
 import { formatCurrency, formatDate, PRODUCT_TYPE_LABELS, PRODUCT_TYPE_COLORS, cn } from "@/lib/utils";
 import { TrendingUp, ShoppingBag, Package, AlertTriangle, ArrowUpRight, Calendar, BarChart2, Plus } from "lucide-react";
 import Link from "next/link";
@@ -58,6 +59,9 @@ export default function RealtimeDashboard({ initialData }: { initialData: Dashbo
   useRealtimeSales(() => fetchDashboard());
   useRealtimeProducts(() => fetchDashboard());
   useRefreshListener("dashboard", fetchDashboard);
+  // Auto reconcile on mount, focus, tab visibility and a polling interval so
+  // the figures stay current without a manual refresh.
+  useAutoRefresh(fetchDashboard);
 
   const { todayRevenue, todayCount, monthRevenue, monthCount, lowStockProducts, recentSales, productCount } = data;
 

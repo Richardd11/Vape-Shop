@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, memo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRealtimeProducts, useRealtimeSales } from "@/lib/realtime";
 import { notify, useRefreshListener } from "@/lib/refreshBus";
+import { useAutoRefresh } from "@/lib/useAutoRefresh";
 import {
   Search, ShoppingCart, X, Plus, Minus, Trash2,
   CheckCircle, Tag, Package
@@ -44,21 +45,24 @@ export default function POSPage() {
 
   const cartTotals = calculateCartTotals(cartItems);
 
-  const loadProducts = useCallback(async () => {
-    setLoadingProducts(true);
+  const loadProducts = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoadingProducts(true);
     const params = new URLSearchParams({ active_only: "true" });
     if (search) params.set("search", search);
     if (filterType !== "all") params.set("type", filterType);
     const res = await fetch(`/api/products?${params}`, { cache: "no-store" });
     if (res.ok) { const json = await res.json(); setProducts(json.data ?? json); }
-    setLoadingProducts(false);
+    if (!opts?.silent) setLoadingProducts(false);
   }, [search, filterType]);
 
-  useEffect(() => { const t = setTimeout(loadProducts, 200); return () => clearTimeout(t); }, [loadProducts]);
+  useEffect(() => { const t = setTimeout(() => loadProducts(), 200); return () => clearTimeout(t); }, [loadProducts]);
   useEffect(() => { searchRef.current?.focus(); }, []);
 
-  useRealtimeProducts(() => loadProducts());
-  useRefreshListener("products", loadProducts);
+  // Background refreshes update stock silently (no skeleton flash over the grid).
+  // immediate: false — the debounced effect above already loads on mount.
+  useRealtimeProducts(() => loadProducts({ silent: true }));
+  useRefreshListener("products", () => loadProducts({ silent: true }));
+  useAutoRefresh(() => loadProducts({ silent: true }), { immediate: false });
 
   function addToCart(product: ProductWithVariants, variant: (ProductVariant & { flavors?: { name: string } | null }) | null) {
     const price = getEffectivePrice(product, variant);

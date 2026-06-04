@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRealtimeSales } from "@/lib/realtime";
 import { useRefreshListener } from "@/lib/refreshBus";
+import { useAutoRefresh } from "@/lib/useAutoRefresh";
 import { formatCurrency, formatDateTime, cn } from "@/lib/utils";
 import { Search, FileText, ChevronRight, Filter, DollarSign, ReceiptText, Percent, Calendar } from "lucide-react";
 import Link from "next/link";
@@ -51,6 +52,7 @@ export default function RealtimeSalesList({
     }
   }, [date_from, date_to]);
 
+  // Refetch when the date filters change (mount/focus/polling handled below).
   useEffect(() => {
     if (mountedRef.current) {
       fetchSales();
@@ -60,6 +62,9 @@ export default function RealtimeSalesList({
 
   useRealtimeSales(() => fetchSales());
   useRefreshListener("sales", fetchSales);
+  // Auto reconcile on mount, focus, tab visibility and a polling interval so a
+  // new sale shows up without a manual refresh.
+  useAutoRefresh(fetchSales);
 
   const totalRevenue = sales?.reduce((s, r) => s + r.total_amount, 0) ?? 0;
   const totalDiscounts = sales?.reduce((s, r) => s + r.discount_amount, 0) ?? 0;
