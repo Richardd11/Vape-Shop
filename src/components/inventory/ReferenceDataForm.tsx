@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Plus, Trash2, Loader2, Check } from "lucide-react";
-import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface ReferenceDataFormProps {
@@ -11,7 +10,6 @@ interface ReferenceDataFormProps {
 }
 
 export default function ReferenceDataForm({ type, items }: ReferenceDataFormProps) {
-  const router = useRouter();
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,8 +29,6 @@ export default function ReferenceDataForm({ type, items }: ReferenceDataFormProp
       if (res.ok) {
         setNewName("");
         setAdding(false);
-        router.refresh();
-        setTimeout(() => window.location.reload(), 500);
       } else {
         const data = await res.json();
         alert(data.error || "Failed to add item");
@@ -50,8 +46,7 @@ export default function ReferenceDataForm({ type, items }: ReferenceDataFormProp
         method: "DELETE",
       });
       if (res.ok) {
-        router.refresh();
-        setTimeout(() => window.location.reload(), 500);
+        // Realtime will handle UI update
       } else {
         const data = await res.json();
         alert(data.error || "Failed to delete item (likely in use)");

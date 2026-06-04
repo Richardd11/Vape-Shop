@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { Save, Loader2, Plus, Minus, ToggleLeft, ToggleRight, Check } from "lucide-react";
+import { useState } from "react";
+import { Save, Loader2, Plus, Minus, ToggleLeft, ToggleRight } from "lucide-react";
 import { cn, formatCurrency, getVariantLabel } from "@/lib/utils";
 
 interface Variant {
@@ -20,7 +19,6 @@ interface Variant {
 }
 
 export default function VariantEditor({ productId, variants: initialVariants }: { productId: string; variants: Variant[] }) {
-  const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -66,11 +64,7 @@ export default function VariantEditor({ productId, variants: initialVariants }: 
         throw new Error(data.error || "Failed to update variants");
       }
 
-      // Clear changed state - UI updates instantly
       setChangedIds(new Set());
-      
-      // Background refresh to sync with server
-      router.refresh();
     } catch (err: any) {
       setError(err.message);
     } finally {

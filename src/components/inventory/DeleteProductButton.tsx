@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 
@@ -11,7 +10,6 @@ interface DeleteProductButtonProps {
 }
 
 export default function DeleteProductButton({ productId, productName }: DeleteProductButtonProps) {
-  const router = useRouter();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -23,8 +21,6 @@ export default function DeleteProductButton({ productId, productName }: DeletePr
         const data = await res.json().catch(() => ({}));
         alert(data.error || "Failed to delete product");
       }
-      router.refresh();
-      setTimeout(() => window.location.reload(), 500);
     } catch (err: any) {
       alert(err.message || "Failed to delete product");
     } finally {

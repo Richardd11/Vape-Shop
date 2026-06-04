@@ -12,6 +12,27 @@ export async function GET(request: NextRequest) {
   const brandId = searchParams.get("brand_id") ?? "";
   const lowStock = searchParams.get("low_stock") === "true";
   const activeOnly = searchParams.get("active_only") !== "false";
+  const view = searchParams.get("view") ?? "";
+
+  // Use products_with_stock view for inventory-style flat data
+  if (view === "with_stock") {
+    let query = supabase
+      .from("products_with_stock")
+      .select("*")
+      .eq("is_active", true)
+      .order("name");
+
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,sku.ilike.%${search}%`);
+    }
+    if (type && type !== "all") {
+      query = query.eq("type", type);
+    }
+
+    const { data, error } = await query;
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(data ?? []);
+  }
 
   let query = supabase
     .from("products")
@@ -35,7 +56,6 @@ export async function GET(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Filter low stock if requested
   let products = data ?? [];
   if (lowStock) {
     products = products.filter((p) => {

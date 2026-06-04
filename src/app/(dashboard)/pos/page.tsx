@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, memo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { useRealtimeProducts, useRealtimeSales } from "@/lib/realtime";
 import {
   Search, ShoppingCart, X, Plus, Minus, Trash2,
   CheckCircle, Tag, Package
@@ -54,6 +55,8 @@ export default function POSPage() {
 
   useEffect(() => { const t = setTimeout(loadProducts, 200); return () => clearTimeout(t); }, [loadProducts]);
   useEffect(() => { searchRef.current?.focus(); }, []);
+
+  useRealtimeProducts(() => loadProducts());
 
   function addToCart(product: ProductWithVariants, variant: (ProductVariant & { flavors?: { name: string } | null }) | null) {
     const price = getEffectivePrice(product, variant);

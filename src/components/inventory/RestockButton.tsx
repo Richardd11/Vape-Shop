@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
 import { Package, Plus, Minus, Loader2, Save, X } from "lucide-react";
 import { cn, formatCurrency, getVariantLabel } from "@/lib/utils";
@@ -29,7 +28,6 @@ interface ProductWithVariants {
 }
 
 export default function RestockButton({ productId, productName }: { productId: string; productName: string }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [product, setProduct] = useState<ProductWithVariants | null>(null);
   const [loading, setLoading] = useState(false);
@@ -99,10 +97,7 @@ export default function RestockButton({ productId, productName }: { productId: s
         throw new Error(data.error || "Failed to update stock");
       }
 
-      router.refresh();
       closeModal();
-      // Force reload after short delay if router.refresh doesn't work
-      setTimeout(() => window.location.reload(), 500);
     } catch (err: any) {
       setError(err.message);
     } finally {
