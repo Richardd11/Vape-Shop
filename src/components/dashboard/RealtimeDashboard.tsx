@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRealtimeSales, useRealtimeProducts } from "@/lib/realtime";
+import { useRefreshListener } from "@/lib/refreshBus";
 import { formatCurrency, formatDate, PRODUCT_TYPE_LABELS, PRODUCT_TYPE_COLORS, cn } from "@/lib/utils";
 import { TrendingUp, ShoppingBag, Package, AlertTriangle, ArrowUpRight, Calendar, BarChart2, Plus } from "lucide-react";
 import Link from "next/link";
@@ -56,6 +57,7 @@ export default function RealtimeDashboard({ initialData }: { initialData: Dashbo
 
   useRealtimeSales(() => fetchDashboard());
   useRealtimeProducts(() => fetchDashboard());
+  useRefreshListener("dashboard", fetchDashboard);
 
   const { todayRevenue, todayCount, monthRevenue, monthCount, lowStockProducts, recentSales, productCount } = data;
 

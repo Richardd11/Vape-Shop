@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Save, Loader2, Upload, ImageIcon, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { notify } from "@/lib/refreshBus";
 import {
   PRODUCT_TYPE_LABELS,
   PRODUCT_TYPE_HAS_FLAVOR,
@@ -162,6 +163,8 @@ export default function ProductForm({ brands, categories, flavors }: ProductForm
         throw new Error(data.error || "Failed to create product");
       }
 
+      notify("inventory");
+      notify("products");
       router.push("/inventory");
     } catch (err: any) {
       setError(err.message);

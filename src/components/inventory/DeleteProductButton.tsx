@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Trash2, Loader2 } from "lucide-react";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import { notify } from "@/lib/refreshBus";
 
 interface DeleteProductButtonProps {
   productId: string;
@@ -20,6 +21,9 @@ export default function DeleteProductButton({ productId, productName }: DeletePr
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(data.error || "Failed to delete product");
+      } else {
+        notify("inventory");
+        notify("products");
       }
     } catch (err: any) {
       alert(err.message || "Failed to delete product");

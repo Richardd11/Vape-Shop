@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRealtimeSales, useRealtimeProducts } from "@/lib/realtime";
+import { useRefreshListener } from "@/lib/refreshBus";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 export default function RealtimeStats({
@@ -53,6 +54,7 @@ export default function RealtimeStats({
 
   useRealtimeSales(() => fetchStats());
   useRealtimeProducts(() => fetchStats());
+  useRefreshListener("dashboard", fetchStats);
 
   return null;
 }

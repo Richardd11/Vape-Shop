@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, memo } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRealtimeProducts, useRealtimeSales } from "@/lib/realtime";
+import { notify, useRefreshListener } from "@/lib/refreshBus";
 import {
   Search, ShoppingCart, X, Plus, Minus, Trash2,
   CheckCircle, Tag, Package
@@ -57,6 +58,7 @@ export default function POSPage() {
   useEffect(() => { searchRef.current?.focus(); }, []);
 
   useRealtimeProducts(() => loadProducts());
+  useRefreshListener("products", loadProducts);
 
   function addToCart(product: ProductWithVariants, variant: (ProductVariant & { flavors?: { name: string } | null }) | null) {
     const price = getEffectivePrice(product, variant);
@@ -119,11 +121,15 @@ export default function POSPage() {
         clearCart(); setCheckoutOpen(false);
         window.open(checkoutUrl, "_blank");
         setToastMsg("Complete payment in GCash window"); setToastOpen(true);
+        notify("sales");
+        notify("dashboard");
         setSubmitting(false);
         return;
       }
 
       // Regular (cash/mixed) - show receipt
+      notify("sales");
+      notify("dashboard");
       setCompletedSale({ ...sale, items: cartItems, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total });
       setToastMsg(`Sale complete! Total: ${formatCurrency(cartTotals.total)}`); setToastOpen(true);
       clearCart(); setCheckoutOpen(false); loadProducts();
@@ -143,6 +149,8 @@ export default function POSPage() {
             body: JSON.stringify({ sourceId, amount, saleId, description: `Sale #${saleId.substring(0, 8)}` }),
           });
           if (pmRes.ok) {
+            notify("sales");
+            notify("dashboard");
             setToastMsg("GCash payment confirmed!");
           } else {
             const err = await pmRes.json();

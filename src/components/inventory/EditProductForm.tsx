@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Loader2, Trash2, ImageIcon, X, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { notify } from "@/lib/refreshBus";
 import { PRODUCT_TYPE_LABELS } from "@/lib/utils";
 import type { ProductType } from "@/lib/types";
 import ConfirmModal from "@/components/ui/ConfirmModal";
@@ -114,6 +115,8 @@ export default function EditProductForm({ product, brands, categories }: EditPro
         throw new Error(data.error || "Failed to update product");
       }
 
+      notify("inventory");
+      notify("products");
       router.push("/inventory");
     } catch (err: any) {
       setError(err.message);
@@ -128,6 +131,8 @@ export default function EditProductForm({ product, brands, categories }: EditPro
     try {
       const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete product");
+      notify("inventory");
+      notify("products");
       router.push("/inventory");
     } catch (err: any) {
       setError(err.message);

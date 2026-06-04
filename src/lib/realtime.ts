@@ -92,7 +92,7 @@ export function useRealtimeProducts(
   onUpdate: () => void,
   enabled = true
 ) {
-  const refresh = useDebouncedCallback(onUpdate, 300);
+  const refresh = useDebouncedCallback(onUpdate, 100);
 
   useRealtimeListener("products", () => refresh(), { event: "*", enabled });
   useRealtimeListener("product_variants", () => refresh(), { event: "*", enabled });
@@ -103,7 +103,7 @@ export function useRealtimeSales(
   onUpdate: () => void,
   enabled = true
 ) {
-  const refresh = useDebouncedCallback(onUpdate, 300);
+  const refresh = useDebouncedCallback(onUpdate, 100);
 
   useRealtimeListener("sales", () => refresh(), { event: "*", enabled });
   useRealtimeListener("sale_items", () => refresh(), { event: "*", enabled });

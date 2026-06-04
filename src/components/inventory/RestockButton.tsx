@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Package, Plus, Minus, Loader2, Save, X } from "lucide-react";
 import { cn, formatCurrency, getVariantLabel } from "@/lib/utils";
+import { notify } from "@/lib/refreshBus";
 
 interface Variant {
   id: string;
@@ -97,6 +98,8 @@ export default function RestockButton({ productId, productName }: { productId: s
         throw new Error(data.error || "Failed to update stock");
       }
 
+      notify("inventory");
+      notify("products");
       closeModal();
     } catch (err: any) {
       setError(err.message);

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Save, Loader2, Plus, Minus, ToggleLeft, ToggleRight } from "lucide-react";
 import { cn, formatCurrency, getVariantLabel } from "@/lib/utils";
+import { notify } from "@/lib/refreshBus";
 
 interface Variant {
   id: string;
@@ -65,6 +66,8 @@ export default function VariantEditor({ productId, variants: initialVariants }: 
       }
 
       setChangedIds(new Set());
+      notify("inventory");
+      notify("products");
     } catch (err: any) {
       setError(err.message);
     } finally {

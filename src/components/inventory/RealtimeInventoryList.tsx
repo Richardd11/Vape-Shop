@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRealtimeProducts } from "@/lib/realtime";
+import { useRefreshListener } from "@/lib/refreshBus";
 import { formatCurrency, PRODUCT_TYPE_LABELS, PRODUCT_TYPE_COLORS, cn } from "@/lib/utils";
 import { Search, Package, AlertTriangle, ChevronRight, Edit3, Plus, ArrowRightLeft } from "lucide-react";
 import Link from "next/link";
@@ -70,6 +71,7 @@ export default function RealtimeInventoryList({
   }, [fetchProducts]);
 
   useRealtimeProducts(() => fetchProducts());
+  useRefreshListener("inventory", fetchProducts);
 
   const activeType = type || "all";
 
