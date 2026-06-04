@@ -1,21 +1,4 @@
--- ============================================================
--- SUPABASE FUNCTIONS (apply in SQL Editor after schema.sql)
--- ============================================================
-
--- Safe stock decrement (prevents negative stock)
-CREATE OR REPLACE FUNCTION decrement_variant_stock(
-  p_variant_id UUID,
-  p_quantity INTEGER
-)
-RETURNS void AS $$
-BEGIN
-  UPDATE public.product_variants
-  SET stock = GREATEST(0, stock - p_quantity)
-  WHERE id = p_variant_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Batch process sale items: decrement stock + log inventory movements
+-- Add process_sale_items RPC for batch stock decrement + inventory logging
 CREATE OR REPLACE FUNCTION process_sale_items(
   p_items JSONB,
   p_sale_id UUID,

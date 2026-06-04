@@ -30,7 +30,7 @@ export default function RealtimeStats({
   const mountedRef = useRef(false);
 
   const fetchStats = useCallback(async () => {
-    const res = await fetch("/api/reports/dashboard");
+    const res = await fetch("/api/reports/dashboard", { cache: "no-store" });
     if (res.ok) {
       const data = await res.json();
       setStats({

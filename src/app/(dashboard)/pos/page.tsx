@@ -48,7 +48,7 @@ export default function POSPage() {
     const params = new URLSearchParams({ active_only: "true" });
     if (search) params.set("search", search);
     if (filterType !== "all") params.set("type", filterType);
-    const res = await fetch(`/api/products?${params}`);
+    const res = await fetch(`/api/products?${params}`, { cache: "no-store" });
     if (res.ok) { const json = await res.json(); setProducts(json.data ?? json); }
     setLoadingProducts(false);
   }, [search, filterType]);

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vapeshop-pos-v1';
+const CACHE_NAME = 'vapeshop-pos-v2';
 
 const PRECACHE_URLS = [
   '/',
@@ -24,16 +24,50 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetched = fetch(event.request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      });
-      return cached || fetched;
-    })
-  );
+
+  const url = new URL(event.request.url);
+  const isApi = url.pathname.startsWith('/api/');
+  const isNextData = url.pathname.startsWith('/_next/');
+
+  if (isApi) {
+    // Network-first for API: always try network, fall back to cache only when offline
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } else if (isNextData) {
+    // Network-first for Next.js data/static (JS bundles, CSS, RSC)
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } else {
+    // Cache-first for page navigations (HTML shells)
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        const fetched = fetch(event.request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        });
+        return cached || fetched;
+      })
+    );
+  }
 });

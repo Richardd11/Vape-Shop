@@ -39,7 +39,7 @@ export default function RealtimeSalesList({
     if (date_from) params.set("date_from", date_from);
     if (date_to) params.set("date_to", date_to);
 
-    const res = await fetch(`/api/sales?${params}`);
+    const res = await fetch(`/api/sales?${params}`, { cache: "no-store" });
     if (res.ok) {
       const json = await res.json();
       const salesList = json.data ?? json;

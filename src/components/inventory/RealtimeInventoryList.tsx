@@ -51,7 +51,7 @@ export default function RealtimeInventoryList({
     const params = new URLSearchParams({ view: "with_stock" });
     if (q) params.set("q", q);
     if (type && type !== "all") params.set("type", type);
-    const res = await fetch(`/api/products?${params}`);
+    const res = await fetch(`/api/products?${params}`, { cache: "no-store" });
     if (res.ok) {
       const json = await res.json();
       const list = json.data ?? json;

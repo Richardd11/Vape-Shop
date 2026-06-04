@@ -38,7 +38,7 @@ export default function RealtimeDashboard({ initialData }: { initialData: Dashbo
   const [data, setData] = useState<DashboardData>(initialData);
 
   const fetchDashboard = useCallback(async () => {
-    const res = await fetch("/api/reports/dashboard");
+    const res = await fetch("/api/reports/dashboard", { cache: "no-store" });
     if (res.ok) {
       const json = await res.json();
       setData({
