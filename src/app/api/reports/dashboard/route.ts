@@ -33,7 +33,7 @@ export async function GET() {
       .order("quantity", { ascending: false })
       .limit(10),
     supabase.from("products_with_stock").select("id, name, total_stock, low_stock_alert, type")
-      .filter("total_stock", "lt", 5).eq("is_active", true),
+      .eq("is_active", true),
     supabase.from("products").select("id", { count: "exact", head: true }).eq("is_active", true),
     supabase.from("sales")
       .select("id, total_amount, payment_type, created_at, profiles(full_name)")
@@ -41,6 +41,11 @@ export async function GET() {
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
+
+  // Low stock = at or below each product's own threshold (matches Inventory badge)
+  const lowStockItems = (lowStock ?? []).filter(
+    (p) => p.total_stock <= p.low_stock_alert
+  );
 
   const todayRevenue = todaySales?.reduce((s, r) => s + r.total_amount, 0) ?? 0;
   const monthRevenue = monthSales?.reduce((s, r) => s + r.total_amount, 0) ?? 0;
@@ -74,9 +79,9 @@ export async function GET() {
       ? ((monthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
       : 0,
     total_products: totalProducts ?? 0,
-    low_stock_count: lowStock?.length ?? 0,
+    low_stock_count: lowStockItems.length,
     top_products: topProductsList,
-    low_stock_items: lowStock ?? [],
+    low_stock_items: lowStockItems,
     recent_sales: recentSales ?? [],
   });
 }

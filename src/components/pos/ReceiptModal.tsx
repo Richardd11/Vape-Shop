@@ -38,8 +38,8 @@ export default function ReceiptModal({ sale, onClose }: ReceiptModalProps) {
 
         {/* Shop Header */}
         <div className="text-center mb-5">
-          <h2 className="text-xl font-bold uppercase tracking-wider mb-1">
-            Vape Shop
+          <h2 className="text-xl font-bold tracking-wide mb-1">
+            VapeShop
           </h2>
           <p className="text-[10px] text-gray-500 tracking-wide">
             Your premium vape destination

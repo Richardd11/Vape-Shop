@@ -369,7 +369,7 @@ const CartItemRow = memo(function CartItemRow({ item, onQtyChange, onDiscountCha
           <button onClick={() => onQtyChange(item.quantity + 1)} className="flex items-center justify-center w-7 h-7 rounded-full bg-brand-500/15 text-brand-400 hover:bg-brand-500/25"><Plus size={12} /></button>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowDiscount(!showDiscount)} className={cn("flex items-center text-xs", item.discount_amount > 0 ? "text-[var(--color-success)]" : "text-[var(--color-text-tertiary)]")}><Tag size={11} /></button>
+          <button onClick={() => setShowDiscount(!showDiscount)} className={cn("flex items-center gap-1 text-xs font-medium", item.discount_amount > 0 ? "text-[var(--color-success)]" : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]")}><Tag size={11} /> Discount{item.discount_amount > 0 ? ` (-${formatCurrency(item.discount_amount)})` : ""}</button>
           <p className="text-sm font-bold text-brand-400">{formatCurrency(item.line_total)}</p>
         </div>
       </div>
