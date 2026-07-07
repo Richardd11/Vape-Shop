@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       billing: { name: 'Customer', email: 'customer@vapeshop.ph' },
       successUrl: `${appUrl}/pos`,
       cancelUrl: `${appUrl}/pos`,
-      paymentMethodTypes: ['maya'],
+      paymentMethodTypes: ['paymaya'],
       metadata: { source: 'pos' },
       description: description || 'VapeShop Purchase',
     })

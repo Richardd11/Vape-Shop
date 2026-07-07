@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'NEXT_PUBLIC_APP_URL not configured' }, { status: 500 })
     }
 
-    const paymentMethodTypes = paymentMethod === 'maya' ? ['maya'] : ['gcash', 'maya']
+    const paymentMethodTypes = paymentMethod === 'maya' ? ['paymaya'] : ['gcash', 'paymaya']
 
     const lineItems = items.map((item: StoreCartItem) => ({
       name: item.name + (item.variant_label ? ` (${item.variant_label})` : ''),
