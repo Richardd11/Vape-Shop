@@ -3,10 +3,10 @@ import { createSource } from "@/lib/paymongo";
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, description } = await request.json();
+    const { amount, description, paymentType } = await request.json();
     if (!amount) return NextResponse.json({ error: "Amount required" }, { status: 400 });
 
-    const source = await createSource(amount, description || "VapeShop Purchase");
+    const source = await createSource(amount, description || "VapeShop Purchase", paymentType || 'gcash');
 
     return NextResponse.json({
       sourceId: source.data.id,

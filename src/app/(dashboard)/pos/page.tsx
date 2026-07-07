@@ -9,7 +9,7 @@ import {
   Search, ShoppingCart, X, Plus, Minus, Trash2,
   CheckCircle, Tag, Package, QrCode
 } from "lucide-react";
-import GCashQRModal from "@/components/pos/GCashQRModal";
+import PaymentQRModal from "@/components/pos/PaymentQRModal";
 import {
   cn, formatCurrency, getVariantLabel, getEffectivePrice,
   PRODUCT_TYPE_LABELS, PRODUCT_TYPE_COLORS, generateCartItemId,
@@ -43,8 +43,8 @@ export default function POSPage() {
   const [toastOpen, setToastOpen] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [variantPickerProduct, setVariantPickerProduct] = useState<ProductWithVariants | null>(null);
-  const [gcashQr, setGcashQr] = useState<{ checkoutUrl: string; sourceId: string; saleId: string; amount: number } | null>(null);
-  const [pendingGcashSale, setPendingGcashSale] = useState<Record<string, unknown> | null>(null);
+  const [paymentQr, setPaymentQr] = useState<{ checkoutUrl: string; sourceId: string; saleId: string; amount: number; paymentMethod: 'gcash' | 'maya' } | null>(null);
+  const [pendingQrSale, setPendingQrSale] = useState<Record<string, unknown> | null>(null);
 
   const cartTotals = calculateCartTotals(cartItems);
 
@@ -104,29 +104,30 @@ export default function POSPage() {
       const cash = parseFloat(cashTendered) || 0;
       const gcash = parseFloat(gcashAmount) || 0;
       let finalCash: number | null = null, finalGcash: number | null = null, finalChange = 0;
+      const salePaymentType = paymentType === "maya" ? "gcash" : paymentType;
       if (paymentType === "cash") { finalCash = cash || cartTotals.total; finalChange = Math.max(0, finalCash - cartTotals.total); }
-      else if (paymentType === "gcash") { finalGcash = gcash || cartTotals.total; }
+      else if (paymentType === "gcash" || paymentType === "maya") { finalGcash = gcash || cartTotals.total; }
       else if (paymentType === "mixed") { finalCash = cash; finalGcash = gcash; finalChange = Math.max(0, (cash + gcash) - cartTotals.total); }
 
       // Save sale first
       const res = await fetch("/api/sales", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cartItems, payment_type: paymentType, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total, cash_tendered: paymentType !== "gcash" ? finalCash : null, gcash_amount: paymentType !== "cash" ? finalGcash : null, change_amount: +finalChange.toFixed(2), notes }),
+        body: JSON.stringify({ items: cartItems, payment_type: salePaymentType, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total, cash_tendered: paymentType !== "gcash" && paymentType !== "maya" ? finalCash : null, gcash_amount: paymentType !== "cash" ? finalGcash : null, change_amount: +finalChange.toFixed(2), notes: paymentType === "maya" ? "Maya payment" : notes }),
       });
       if (!res.ok) { const err = await res.json(); alert(err.error ?? "Failed to save sale"); setSubmitting(false); return; }
       const sale = await res.json();
 
-      // PayMongo for GCash payments — show QR code
-      if (paymentType === "gcash" && process.env.NEXT_PUBLIC_PAYMONGO_ENABLED === "true") {
+      // PayMongo for GCash/Maya payments — show QR code
+      if ((paymentType === "gcash" || paymentType === "maya") && process.env.NEXT_PUBLIC_PAYMONGO_ENABLED === "true") {
         const pmRes = await fetch("/api/paymongo/source", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: cartTotals.total, description: `Sale #${sale.id.substring(0, 8)}` }),
+          body: JSON.stringify({ amount: cartTotals.total, description: `Sale #${sale.id.substring(0, 8)}`, paymentType }),
         });
-        if (!pmRes.ok) { const err = await pmRes.json(); alert("PayMongo: " + (err.error ?? "Failed")); setSubmitting(false); return; }
+        if (!pmRes.ok) { const err = await pmRes.json(); alert(`PayMongo: ${err.error ?? "Failed"}`); setSubmitting(false); return; }
         const { sourceId, checkoutUrl } = await pmRes.json();
         localStorage.setItem("paymongo_pending", JSON.stringify({ sourceId, saleId: sale.id, amount: cartTotals.total }));
-        setPendingGcashSale({ ...sale, items: cartItems, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total });
-        setGcashQr({ checkoutUrl, sourceId, saleId: sale.id, amount: cartTotals.total });
+        setPendingQrSale({ ...sale, items: cartItems, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total });
+        setPaymentQr({ checkoutUrl, sourceId, saleId: sale.id, amount: cartTotals.total, paymentMethod: paymentType as 'gcash' | 'maya' });
         clearCart(); setCheckoutOpen(false);
         setSubmitting(false);
         return;
@@ -303,8 +304,8 @@ export default function POSPage() {
             </div>
             <div className="mb-4"><p className="text-xs font-semibold mb-2 text-[var(--color-text-tertiary)] uppercase tracking-wider">Payment Method</p>
               <div className="grid grid-cols-3 gap-2">
-                {(["cash", "gcash", "mixed"] as PaymentType[]).map((type) => (
-                  <button key={type} onClick={() => setPaymentType(type)} className={cn("flex flex-col items-center gap-1 py-3 rounded-xl text-xs font-semibold transition-all border relative", paymentType === type ? type === "gcash" ? "bg-blue-500/10 border-blue-500/30 text-blue-400" : "bg-brand-500/10 border-brand-500/30 text-brand-400" : "bg-[var(--color-surface-base)] border-transparent text-[var(--color-text-tertiary)]")}><span className="text-lg">{PAYMENT_TYPE_ICONS[type]}</span>{PAYMENT_TYPE_LABELS[type]}{type === "gcash" && <QrCode size={10} className="absolute top-1 right-1 opacity-50" />}</button>
+                {(["cash", "gcash", "maya"] as PaymentType[]).map((type) => (
+                  <button key={type} onClick={() => setPaymentType(type)} className={cn("flex flex-col items-center gap-1 py-3 rounded-xl text-xs font-semibold transition-all border relative", paymentType === type ? type === "gcash" ? "bg-blue-500/10 border-blue-500/30 text-blue-400" : type === "maya" ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400" : "bg-brand-500/10 border-brand-500/30 text-brand-400" : "bg-[var(--color-surface-base)] border-transparent text-[var(--color-text-tertiary)]")}><span className="text-lg">{PAYMENT_TYPE_ICONS[type] ?? '💳'}</span>{PAYMENT_TYPE_LABELS[type]}{(type === "gcash" || type === "maya") && <QrCode size={10} className="absolute top-1 right-1 opacity-50" />}</button>
                 ))}
               </div>
             </div>
@@ -328,26 +329,28 @@ export default function POSPage() {
         </div>
       </div>
 
-      {gcashQr && (
-        <GCashQRModal
-          checkoutUrl={gcashQr.checkoutUrl}
-          sourceId={gcashQr.sourceId}
-          saleId={gcashQr.saleId}
-          amount={gcashQr.amount}
+      {paymentQr && (
+        <PaymentQRModal
+          checkoutUrl={paymentQr.checkoutUrl}
+          sourceId={paymentQr.sourceId}
+          saleId={paymentQr.saleId}
+          amount={paymentQr.amount}
+          paymentMethod={paymentQr.paymentMethod}
           onComplete={() => {
-            setGcashQr(null);
-            if (pendingGcashSale) {
-              setCompletedSale(pendingGcashSale);
-              setPendingGcashSale(null);
+            setPaymentQr(null);
+            if (pendingQrSale) {
+              setCompletedSale(pendingQrSale);
+              setPendingQrSale(null);
             }
             notify("sales");
             notify("dashboard");
-            setToastMsg("GCash payment confirmed!"); setToastOpen(true);
+            const label = paymentQr.paymentMethod === 'gcash' ? 'GCash' : 'Maya';
+            setToastMsg(`${label} payment confirmed!`); setToastOpen(true);
             loadProducts();
           }}
           onClose={() => {
-            setGcashQr(null);
-            setToastMsg("GCash payment cancelled"); setToastOpen(true);
+            setPaymentQr(null);
+            setToastMsg("Payment cancelled"); setToastOpen(true);
           }}
         />
       )}

@@ -254,7 +254,7 @@ export function parseWebhookEvent(payload: Buffer): {
 // LEGACY: Source API — kept for POS GCash flow compatibility
 // ============================================================
 
-export async function createSource(amount: number, description: string) {
+export async function createSource(amount: number, description: string, paymentType: 'gcash' | 'maya' = 'gcash') {
   const res = await fetch(`${PAYMONGO_BASE}/sources`, {
     method: 'POST',
     headers: { Authorization: auth(), 'Content-Type': 'application/json' },
@@ -263,7 +263,7 @@ export async function createSource(amount: number, description: string) {
         attributes: {
           amount: Math.round(amount * 100),
           currency: 'PHP',
-          type: 'gcash',
+          type: paymentType,
           redirect: { success: `${process.env.NEXT_PUBLIC_APP_URL}/pos`, failed: `${process.env.NEXT_PUBLIC_APP_URL}/pos` },
           billing: { name: 'Customer', email: 'customer@vapeshop.ph', phone: '' },
           description,

@@ -6,7 +6,7 @@ export type UserRole = 'admin' | 'cashier';
 
 export type ProductType = 'device' | 'juice' | 'pod' | 'disposable';
 
-export type PaymentType = 'cash' | 'gcash' | 'mixed';
+export type PaymentType = 'cash' | 'gcash' | 'maya' | 'mixed';
 
 export type SaleStatus = 'completed' | 'voided';
 

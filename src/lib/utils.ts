@@ -183,14 +183,16 @@ export const NICOTINE_OPTIONS = [
 // ============================================================
 // PAYMENT TYPE HELPERS
 // ============================================================
-export const PAYMENT_TYPE_LABELS = {
+export const PAYMENT_TYPE_LABELS: Record<string, string> = {
   cash: 'Cash',
   gcash: 'GCash',
+  maya: 'Maya',
   mixed: 'Cash + GCash',
 };
 
-export const PAYMENT_TYPE_ICONS = {
+export const PAYMENT_TYPE_ICONS: Record<string, string> = {
   cash: '💵',
   gcash: '📱',
-  mixed: '💳',
+  maya: '💳',
+  mixed: '💵📱',
 };
