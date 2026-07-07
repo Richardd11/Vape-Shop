@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingCart, Package, BarChart3, ArrowRightLeft, Tag } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, BarChart3, ArrowRightLeft, Tag, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const mainTabs = [
   { href: "/dashboard", label: "Dash", icon: LayoutDashboard },
   { href: "/pos", label: "POS", icon: ShoppingCart },
+  { href: "/store", label: "Store", icon: Store },
   { href: "/inventory", label: "Items", icon: Package },
   { href: "/sales", label: "Sales", icon: BarChart3 },
 ];
@@ -25,11 +26,10 @@ export default function MobileNav({ role }: MobileNavProps) {
   const pathname = usePathname();
   const isAdmin = role === "admin";
   const tabs = isAdmin ? [...mainTabs, ...adminTabs] : mainTabs;
-  const isNarrow = tabs.length >= 5;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--color-border-subtle)] bg-[var(--color-surface-base)]">
-      <div className={cn("flex items-center justify-around px-1 py-1 pb-safe", isNarrow && "px-0.5")}>
+      <div className="flex items-center justify-around px-1 py-1 pb-safe">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
@@ -38,15 +38,14 @@ export default function MobileNav({ role }: MobileNavProps) {
               href={href}
               prefetch={true}
               className={cn(
-                "flex flex-col items-center gap-0.5 rounded-xl transition-all min-w-0",
-                isNarrow ? "px-2 py-1.5" : "px-4 py-2",
+                "flex flex-col items-center gap-0.5 rounded-xl transition-all min-w-0 px-1.5 py-1.5",
                 active
                   ? "text-brand-400 bg-brand-500/10"
                   : "text-text-tertiary"
               )}
             >
-              <Icon size={isNarrow ? 18 : 20} />
-              <span className="text-[0.65rem] font-medium leading-none">{label}</span>
+              <Icon size={18} />
+              <span className="text-[0.6rem] font-medium leading-none">{label}</span>
             </Link>
           );
         })}

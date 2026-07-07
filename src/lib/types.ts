@@ -213,6 +213,85 @@ export interface DashboardStats {
 }
 
 // ============================================================
+// E-COMMERCE STORE TYPES
+// ============================================================
+export interface StoreCustomer {
+  id: string
+  email: string
+  name: string
+  phone: string | null
+  address: string | null
+  created_at: string
+}
+
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'expired' | 'refunded' | 'partially_refunded'
+
+export interface StoreOrder {
+  id: string
+  customer_name: string
+  email: string
+  phone: string | null
+  shipping_address: string
+  payment_method: 'cod' | 'gcash' | 'maya'
+  status: 'pending' | 'preparing' | 'fulfilled' | 'cancelled'
+  total_amount: number
+  subtotal: number
+  discount_amount: number
+  notes: string | null
+  payment_status: PaymentStatus
+  paymongo_checkout_id: string | null
+  paymongo_payment_intent_id: string | null
+  paymongo_transaction_ref: string | null
+  customer_id: string | null
+  coupon_code: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Payment {
+  id: string
+  order_id: string
+  paymongo_checkout_id: string | null
+  paymongo_payment_intent_id: string | null
+  paymongo_payment_id: string | null
+  transaction_ref: string | null
+  payment_method: string | null
+  amount: number
+  status: PaymentStatus
+  webhook_raw: unknown
+  webhook_received_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface StoreOrderItem {
+  id: string
+  order_id: string
+  product_id: string
+  variant_info: string | null
+  quantity: number
+  unit_price: number
+  created_at: string
+}
+
+export interface StoreCartItem {
+  product_id: string
+  name: string
+  price: number
+  quantity: number
+  image_url: string
+  variant_label?: string
+}
+
+export interface StoreCheckoutFormData {
+  customer_name: string
+  email: string
+  phone: string
+  shipping_address: string
+  payment_method: 'cod' | 'gcash' | 'maya'
+}
+
+// ============================================================
 // FORM TYPES
 // ============================================================
 export interface ProductFormData {

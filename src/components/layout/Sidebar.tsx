@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Zap, LayoutDashboard, ShoppingCart, Package,
-  BarChart3, Tag, ArrowRightLeft, LogOut
+  BarChart3, Tag, ArrowRightLeft, LogOut, Store, Wallet
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/types";
@@ -13,11 +13,13 @@ import { cn } from "@/lib/utils";
 const mainItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/pos", label: "Point of Sale", icon: ShoppingCart },
+  { href: "/store", label: "Online Store", icon: Store },
   { href: "/inventory", label: "Inventory", icon: Package },
   { href: "/sales", label: "Sales History", icon: BarChart3 },
 ];
 
 const adminItems = [
+  { href: "/payments", label: "Payments", icon: Wallet },
   { href: "/inventory/reference-data", label: "Reference Data", icon: Tag },
   { href: "/inventory/movements", label: "Stock Movements", icon: ArrowRightLeft },
 ];
