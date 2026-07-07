@@ -117,17 +117,33 @@ export default function POSPage() {
       if (!res.ok) { const err = await res.json(); alert(err.error ?? "Failed to save sale"); setSubmitting(false); return; }
       const sale = await res.json();
 
-      // PayMongo for GCash/Maya payments — show QR code
-      if ((paymentType === "gcash" || paymentType === "maya") && process.env.NEXT_PUBLIC_PAYMONGO_ENABLED === "true") {
+      // PayMongo for GCash — Source API + QR
+      if (paymentType === "gcash" && process.env.NEXT_PUBLIC_PAYMONGO_ENABLED === "true") {
         const pmRes = await fetch("/api/paymongo/source", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: cartTotals.total, description: `Sale #${sale.id.substring(0, 8)}`, paymentType }),
+          body: JSON.stringify({ amount: cartTotals.total, description: `Sale #${sale.id.substring(0, 8)}`, paymentType: 'gcash' }),
         });
         if (!pmRes.ok) { const err = await pmRes.json(); alert(`PayMongo: ${err.error ?? "Failed"}`); setSubmitting(false); return; }
         const { sourceId, checkoutUrl } = await pmRes.json();
         localStorage.setItem("paymongo_pending", JSON.stringify({ sourceId, saleId: sale.id, amount: cartTotals.total }));
         setPendingQrSale({ ...sale, items: cartItems, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total });
-        setPaymentQr({ checkoutUrl, sourceId, saleId: sale.id, amount: cartTotals.total, paymentMethod: paymentType as 'gcash' | 'maya' });
+        setPaymentQr({ checkoutUrl, sourceId, saleId: sale.id, amount: cartTotals.total, paymentMethod: 'gcash' });
+        clearCart(); setCheckoutOpen(false);
+        setSubmitting(false);
+        return;
+      }
+
+      // PayMongo for Maya — Checkout Sessions + QR
+      if (paymentType === "maya" && process.env.NEXT_PUBLIC_PAYMONGO_ENABLED === "true") {
+        const pmRes = await fetch("/api/paymongo/pos-checkout", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ amount: cartTotals.total, description: `Sale #${sale.id.substring(0, 8)}` }),
+        });
+        if (!pmRes.ok) { const err = await pmRes.json(); alert(`PayMongo: ${err.error ?? "Failed"}`); setSubmitting(false); return; }
+        const { sessionId, checkoutUrl } = await pmRes.json();
+        localStorage.setItem("paymongo_pending", JSON.stringify({ sessionId, saleId: sale.id, amount: cartTotals.total, method: 'maya' }));
+        setPendingQrSale({ ...sale, items: cartItems, subtotal: cartTotals.subtotal, discount_amount: cartTotals.discount_amount, total_amount: cartTotals.total });
+        setPaymentQr({ checkoutUrl, sourceId: sessionId, saleId: sale.id, amount: cartTotals.total, paymentMethod: 'maya' });
         clearCart(); setCheckoutOpen(false);
         setSubmitting(false);
         return;

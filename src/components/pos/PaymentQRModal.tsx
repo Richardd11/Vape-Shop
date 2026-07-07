@@ -55,6 +55,8 @@ export default function PaymentQRModal({
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkoutUrl)}&margin=10`
 
   useEffect(() => {
+    const isMaya = paymentMethod === 'maya'
+
     pollRef.current = setInterval(async () => {
       attemptsRef.current++
       if (attemptsRef.current > 30) {
@@ -65,21 +67,35 @@ export default function PaymentQRModal({
       }
 
       try {
-        const res = await fetch('/api/paymongo/confirm', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sourceId,
-            amount,
-            saleId,
-            description: `Sale #${saleId.substring(0, 8)}`,
-          }),
-        })
+        if (isMaya) {
+          // Maya: poll checkout session status
+          const res = await fetch(`/api/paymongo/pos-checkout?session_id=${sourceId}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data.isPaid) {
+              clearInterval(pollRef.current)
+              setStatus('confirmed')
+              setTimeout(onComplete, 1500)
+            }
+          }
+        } else {
+          // GCash: poll via confirm endpoint
+          const res = await fetch('/api/paymongo/confirm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sourceId,
+              amount,
+              saleId,
+              description: `Sale #${saleId.substring(0, 8)}`,
+            }),
+          })
 
-        if (res.ok) {
-          clearInterval(pollRef.current)
-          setStatus('confirmed')
-          setTimeout(onComplete, 1500)
+          if (res.ok) {
+            clearInterval(pollRef.current)
+            setStatus('confirmed')
+            setTimeout(onComplete, 1500)
+          }
         }
       } catch {
         // Silently retry
@@ -89,7 +105,7 @@ export default function PaymentQRModal({
     return () => {
       if (pollRef.current) clearInterval(pollRef.current)
     }
-  }, [sourceId, saleId, amount, onComplete])
+  }, [sourceId, saleId, amount, paymentMethod, onComplete])
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
