@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import ProductCard from '@/components/store/ProductCard'
 import ProductFilters from '@/components/store/ProductFilters'
+import ProductSortSelect from '@/components/store/ProductSortSelect'
 import type { Product, Brand, Category } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -80,24 +81,7 @@ export default async function ProductsPage({
           {/* Sort bar */}
           <div className="mb-6 flex items-center justify-between">
             <div className="hidden md:block" />
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-[#86868B]">Sort by:</label>
-              <select
-                defaultValue={currentSort}
-                onChange={(e) => {
-                  const params = new URLSearchParams(window.location.search)
-                  params.set('sort', e.target.value)
-                  window.location.href = `/store/products?${params.toString()}`
-                }}
-                className="store-sort-select"
-              >
-                <option value="created-desc">Featured</option>
-                <option value="name-asc">Alphabetically, A-Z</option>
-                <option value="name-desc">Alphabetically, Z-A</option>
-                <option value="price-asc">Price, low to high</option>
-                <option value="price-desc">Price, high to low</option>
-              </select>
-            </div>
+            <ProductSortSelect currentSort={currentSort} />
           </div>
 
           <Suspense fallback={
