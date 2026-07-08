@@ -5,6 +5,10 @@ import Link from 'next/link'
 import { useCart } from './StoreCartProvider'
 import QuantityStepper from './QuantityStepper'
 
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount)
+}
+
 export default function CartDrawer() {
   const { items, formattedTotal, open, setOpen, removeItem, updateQty } = useCart()
 

@@ -4,6 +4,8 @@ import FeaturedProducts from '@/components/store/FeaturedProducts'
 import BrandShowcase from '@/components/store/BrandShowcase'
 import NewsletterSignup from '@/components/store/NewsletterSignup'
 
+export const dynamic = 'force-dynamic'
+
 export default function StoreHomePage() {
   return (
     <div>

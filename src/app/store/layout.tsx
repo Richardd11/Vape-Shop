@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import StoreHeader from '@/components/store/StoreHeader'
 import StoreFooter from '@/components/store/StoreFooter'
 import AgeVerification from '@/components/store/AgeVerification'
@@ -9,7 +10,9 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
     <StoreCartProvider>
       <AgeVerification />
       <StoreHeader />
-      <main className="min-h-screen pt-[120px] bg-[#F5F5F7] text-[#1D1D1F]">{children}</main>
+      <Suspense fallback={null}>
+        <main className="min-h-screen pt-[120px] bg-[#F5F5F7] text-[#1D1D1F]">{children}</main>
+      </Suspense>
       <StoreFooter />
       <CartDrawer />
     </StoreCartProvider>
