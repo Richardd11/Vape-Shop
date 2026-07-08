@@ -6,7 +6,7 @@ import { ShoppingBag, ChevronLeft } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
-import { addToCart } from '@/lib/store'
+import { useCart } from '@/components/store/StoreCartProvider'
 import QuantityStepper from '@/components/store/QuantityStepper'
 import StockBadge from '@/components/store/StockBadge'
 import VariantPicker from '@/components/store/VariantPicker'
@@ -24,6 +24,7 @@ export default function ProductDetailPage() {
   const [selectedFlavor, setSelectedFlavor] = useState<string | null>(null)
   const [selectedNicotine, setSelectedNicotine] = useState<string | null>(null)
   const [added, setAdded] = useState(false)
+  const { addItem } = useCart()
 
   useEffect(() => {
     async function load() {
@@ -93,7 +94,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     const label = [selectedFlavor, selectedNicotine].filter(Boolean).join(' · ')
-    addToCart({
+    addItem({
       product_id: product.id,
       name: product.name,
       price: product.base_price,

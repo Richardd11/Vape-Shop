@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // PWA and image optimization config
   images: {
     remotePatterns: [
       {
@@ -18,8 +17,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Disable x-powered-by header
   poweredByHeader: false,
+  async rewrites() {
+    return [
+      {
+        source: "/",
+        destination: "/store",
+      },
+    ]
+  },
 };
 
 export default nextConfig;

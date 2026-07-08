@@ -1,35 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import { getCart, removeFromCart, updateCartQuantity } from '@/lib/store'
-import { formatCurrency } from '@/lib/utils'
+import { useCart } from './StoreCartProvider'
 import QuantityStepper from './QuantityStepper'
-import type { StoreCartItem } from '@/lib/types'
 
 export default function CartDrawer() {
-  const [open, setOpen] = useState(false)
-  const [items, setItems] = useState<StoreCartItem[]>([])
-
-  const refresh = () => setItems(getCart())
-
-  useEffect(() => {
-    const onOpen = () => setOpen(true)
-    const onUpdate = () => refresh()
-    window.addEventListener('open-cart', onOpen)
-    window.addEventListener('cart-updated', onUpdate)
-    return () => {
-      window.removeEventListener('open-cart', onOpen)
-      window.removeEventListener('cart-updated', onUpdate)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (open) refresh()
-  }, [open])
-
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const { items, formattedTotal, open, setOpen, removeItem, updateQty } = useCart()
 
   return (
     <>
@@ -46,7 +23,7 @@ export default function CartDrawer() {
         }`}
       >
         <div className="flex items-center justify-between border-b border-[#E5E5E7] px-6 py-4">
-          <h2 className="text-lg font-semibold text-[#1D1D1F]">Cart</h2>
+          <h2 className="text-lg font-semibold text-[#1D1D1F]">Cart ({items.length})</h2>
           <button onClick={() => setOpen(false)} className="store-pill">
             <X className="h-4 w-4" />
           </button>
@@ -76,17 +53,17 @@ export default function CartDrawer() {
                     <div className="mt-2 flex items-center justify-between">
                       <QuantityStepper
                         value={item.quantity}
-                        onChange={(qty) => updateCartQuantity(item.product_id, qty, item.variant_label)}
+                        onChange={(qty) => updateQty(item.product_id, qty, item.variant_label)}
                       />
                       <span className="text-sm font-medium text-[#1D1D1F]">
                         {formatCurrency(item.price * item.quantity)}
                       </span>
                     </div>
                     <button
-                      onClick={() => removeFromCart(item.product_id, item.variant_label)}
-                      className="mt-1 text-xs text-[#86868B] hover:text-[#991B1B]"
+                      onClick={() => removeItem(item.product_id, item.variant_label)}
+                      className="mt-1 flex items-center gap-1 text-xs text-[#86868B] hover:text-[#991B1B]"
                     >
-                      Remove
+                      <Trash2 className="h-3 w-3" /> Remove
                     </button>
                   </div>
                 </li>
@@ -99,14 +76,14 @@ export default function CartDrawer() {
           <div className="border-t border-[#E5E5E7] px-6 py-4">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm text-[#86868B]">Total</span>
-              <span className="text-lg font-semibold text-[#1D1D1F]">{formatCurrency(total)}</span>
+              <span className="text-lg font-semibold text-[#1D1D1F]">{formattedTotal}</span>
             </div>
             <Link
               href="/store/checkout"
               onClick={() => setOpen(false)}
               className="store-btn-primary w-full"
             >
-              Checkout
+              Proceed to Checkout
             </Link>
           </div>
         )}

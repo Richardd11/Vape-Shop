@@ -17,7 +17,7 @@ interface ProductFiltersProps {
   categories: { id: string; name: string }[]
 }
 
-export default function ProductFilters({ brands, categories }: ProductFiltersProps) {
+export default function ProductFilters({ brands }: ProductFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -37,19 +37,33 @@ export default function ProductFilters({ brands, categories }: ProductFiltersPro
   const hasFilters = searchParams.toString().length > 0
   const currentType = searchParams.get('type') || ''
   const currentBrand = searchParams.get('brand') || ''
-  const currentCategory = searchParams.get('category') || ''
 
   const filtersContent = (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Availability */}
+      <div>
+        <h4 className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#86868B]">Availability</h4>
+        <div className="space-y-2">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" className="accent-[#1D1D1F]" defaultChecked />
+            <span className="text-sm text-[#1D1D1F]">In stock (23)</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" className="accent-[#1D1D1F]" />
+            <span className="text-sm text-[#1D1D1F]">Out of stock (17)</span>
+          </label>
+        </div>
+      </div>
+
       {/* Product Type */}
       <div>
-        <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#86868B]">Type</h4>
+        <h4 className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#86868B]">Product Type</h4>
         <div className="space-y-1">
           {productTypes.map((t) => (
             <button
               key={t.value}
               onClick={() => setFilter('type', t.value)}
-              className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+              className={`block w-full px-3 py-2 text-left text-sm transition-colors ${
                 currentType === t.value
                   ? 'bg-[#F5F5F7] font-medium text-[#1D1D1F]'
                   : 'text-[#86868B] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
@@ -63,12 +77,12 @@ export default function ProductFilters({ brands, categories }: ProductFiltersPro
 
       {/* Brands */}
       {brands.length > 0 && (
-        <div className="store-divider pt-6">
-          <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#86868B]">Brand</h4>
+        <div>
+          <h4 className="mb-4 text-xs font-semibold uppercase tracking-widest text-[#86868B]">Brand</h4>
           <div className="space-y-1">
             <button
               onClick={() => setFilter('brand', '')}
-              className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+              className={`block w-full px-3 py-2 text-left text-sm transition-colors ${
                 !currentBrand
                   ? 'bg-[#F5F5F7] font-medium text-[#1D1D1F]'
                   : 'text-[#86868B] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
@@ -80,7 +94,7 @@ export default function ProductFilters({ brands, categories }: ProductFiltersPro
               <button
                 key={brand.id}
                 onClick={() => setFilter('brand', brand.id)}
-                className={`block w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                className={`block w-full px-3 py-2 text-left text-sm transition-colors ${
                   currentBrand === brand.id
                     ? 'bg-[#F5F5F7] font-medium text-[#1D1D1F]'
                     : 'text-[#86868B] hover:bg-[#F5F5F7] hover:text-[#1D1D1F]'
@@ -94,11 +108,8 @@ export default function ProductFilters({ brands, categories }: ProductFiltersPro
       )}
 
       {hasFilters && (
-        <button
-          onClick={clearFilters}
-          className="text-sm text-[#86868B] underline hover:text-[#1D1D1F]"
-        >
-          Clear all filters
+        <button onClick={clearFilters} className="text-xs text-[#86868B] underline hover:text-[#1D1D1F]">
+          Remove all
         </button>
       )}
     </div>
@@ -108,22 +119,28 @@ export default function ProductFilters({ brands, categories }: ProductFiltersPro
     <>
       <button
         onClick={() => setMobileOpen(true)}
-        className="store-btn-outline mb-4 md:hidden"
+        className="mb-4 w-full border border-[#D2D2D7] py-2.5 text-xs font-medium uppercase tracking-widest md:hidden"
       >
-        Filters{hasFilters ? ` (${searchParams.toString().split('&').length})` : ''}
+        Filter{hasFilters ? ` (${searchParams.toString().split('&').length})` : ''}
       </button>
 
-      <aside className="hidden md:block md:w-56">{filtersContent}</aside>
+      <aside className="hidden md:block md:w-56 lg:w-64 shrink-0">{filtersContent}</aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-white p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-[#1D1D1F]">Filters</h3>
-            <button onClick={() => setMobileOpen(false)} className="store-pill">
-              <X className="h-4 w-4" />
+          <div className="mb-6 flex items-center justify-between">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-[#1D1D1F]">Filter</h3>
+            <button onClick={() => setMobileOpen(false)} className="p-1">
+              <X className="h-5 w-5" />
             </button>
           </div>
           {filtersContent}
+          <button
+            onClick={() => { clearFilters(); setMobileOpen(false) }}
+            className="mt-6 w-full border border-[#1D1D1F] py-3 text-xs font-medium uppercase tracking-widest text-[#1D1D1F] hover:bg-[#1D1D1F] hover:text-white transition-all"
+          >
+            Apply
+          </button>
         </div>
       )}
     </>

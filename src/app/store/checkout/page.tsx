@@ -3,15 +3,14 @@
 import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ShoppingBag, AlertCircle } from 'lucide-react'
-import { getCart } from '@/lib/store'
 import { formatCurrency } from '@/lib/utils'
 import CheckoutForm from '@/components/store/CheckoutForm'
+import { useCart } from '@/components/store/StoreCartProvider'
 
 function CheckoutContent() {
   const searchParams = useSearchParams()
   const cancelled = searchParams.get('cancelled') === 'true'
-  const cart = getCart()
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const { items: cart, total } = useCart()
 
   if (cart.length === 0) {
     return (

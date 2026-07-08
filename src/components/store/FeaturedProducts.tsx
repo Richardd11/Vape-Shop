@@ -1,9 +1,9 @@
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/server'
 import ProductCard from './ProductCard'
 import type { Product } from '@/lib/types'
 
 export default async function FeaturedProducts() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   // Use products_with_stock view to get total_stock computed from variants
   const { data: products } = await supabase

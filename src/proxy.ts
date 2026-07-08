@@ -30,8 +30,12 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // If not logged in and not on login page, redirect to login
-  if (!user && pathname !== '/login') {
+  const PUBLIC_ROUTES = ['/', '/login', '/store', '/store/products', '/store/product', '/store/checkout', '/store/order-confirmation'];
+
+  const isPublicRoute = PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
+
+  // If not logged in and not on a public route, redirect to login
+  if (!user && !isPublicRoute && pathname !== '/login') {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
