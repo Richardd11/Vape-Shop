@@ -5,8 +5,9 @@ import { useRealtimeSales, useRealtimeProducts } from "@/lib/realtime";
 import { useRefreshListener } from "@/lib/refreshBus";
 import { useAutoRefresh } from "@/lib/useAutoRefresh";
 import { formatCurrency, formatDate, PRODUCT_TYPE_LABELS, PRODUCT_TYPE_COLORS, cn } from "@/lib/utils";
-import { TrendingUp, ShoppingBag, Package, AlertTriangle, ArrowUpRight, Calendar, BarChart2, Plus } from "lucide-react";
+import { TrendingUp, ShoppingBag, Package, AlertTriangle, ArrowUpRight, Calendar, BarChart2, Plus, Store } from "lucide-react";
 import Link from "next/link";
+import OnlineOrders from "./OnlineOrders";
 
 interface LowStockProduct {
   id: string;
@@ -212,6 +213,8 @@ export default function RealtimeDashboard({ initialData }: { initialData: Dashbo
           </div>
         </div>
       </div>
+
+      <OnlineOrders />
 
       <div className="card p-4">
         <h2 className="text-sm font-semibold text-[var(--color-text-primary)] mb-3">Quick Actions</h2>

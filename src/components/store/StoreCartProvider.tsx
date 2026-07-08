@@ -18,6 +18,7 @@ interface CartContextValue {
   open: boolean
   setOpen: (v: boolean) => void
   toggleCart: () => void
+  hydrated: boolean
 }
 
 function loadCart(): StoreCartItem[] {
@@ -39,12 +40,18 @@ export function useCart() {
 }
 
 export function StoreCartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<StoreCartItem[]>(() => loadCart())
+  const [items, setItems] = useState<StoreCartItem[]>([])
   const [open, setOpen] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(items))
-  }, [items])
+    setItems(loadCart())
+    setHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(CART_KEY, JSON.stringify(items))
+  }, [items, hydrated])
 
   const addItem = useCallback((item: StoreCartItem) => {
     setItems((prev) => {
@@ -103,6 +110,7 @@ export function StoreCartProvider({ children }: { children: ReactNode }) {
         open,
         setOpen,
         toggleCart,
+        hydrated,
       }}
     >
       {children}

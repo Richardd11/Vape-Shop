@@ -33,7 +33,7 @@ const navGroups = [
 ]
 
 export default function StoreHeader() {
-  const { count, toggleCart } = useCart()
+  const { count, toggleCart, hydrated } = useCart()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
