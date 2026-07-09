@@ -221,7 +221,7 @@ export default function POSPage() {
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3"><Search size={40} className="text-[var(--color-text-tertiary)]/30" /><p className="text-[var(--color-text-tertiary)]">No products found</p></div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 auto-rows-fr">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} onAddToCart={handleProductClick} />
               ))}
