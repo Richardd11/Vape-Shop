@@ -11,7 +11,7 @@ export default function StoreLayout({ children }: { children: React.ReactNode })
       <AgeVerification />
       <StoreHeader />
       <Suspense fallback={null}>
-        <main className="min-h-screen pt-[120px] bg-[#F5F5F7] text-[#1D1D1F]">{children}</main>
+        <main className="storefront min-h-screen bg-white text-[#121212]">{children}</main>
       </Suspense>
       <StoreFooter />
       <CartDrawer />

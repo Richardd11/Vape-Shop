@@ -1,132 +1,162 @@
 'use client'
 
 import Link from 'next/link'
-import { ShoppingBag, Menu, X, Search, ChevronDown } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ChevronDown, Menu, Search, ShoppingBag, UserRound, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useCart } from './StoreCartProvider'
 
 const navGroups = [
+  { label: 'Home', href: '/store' },
   {
-    label: 'Home',
-    href: '/store',
-  },
-  {
-    label: 'Disposable Vape',
-    href: '/store/products?type=disposable',
-  },
-  {
-    label: 'Pod Kits',
+    label: 'Pod Kits / Refillable',
     href: '/store/products?type=pod',
+    children: [
+      { label: 'All Pod Kits', href: '/store/products?type=pod' },
+      { label: 'Oxva / Vagend', href: '/store/products?type=pod&search=oxva' },
+    ],
   },
   {
-    label: 'E-Liquids',
+    label: 'Coil & Cartridge Replacement',
+    href: '/store/products?search=cartridge',
+    children: [
+      { label: 'All Replacement Cartridge & Coil', href: '/store/products?search=cartridge' },
+      { label: 'Lost Vape', href: '/store/products?search=lost%20vape' },
+      { label: 'Oxva / Vagend', href: '/store/products?search=oxva' },
+    ],
+  },
+  {
+    label: 'E-Juice',
     href: '/store/products?type=juice',
+    children: [
+      { label: 'All Ejuice', href: '/store/products?type=juice' },
+      { label: 'Freebase', href: '/store/products?type=juice&search=freebase' },
+      { label: 'Saltnic', href: '/store/products?type=juice&search=saltnic' },
+    ],
   },
+  { label: 'Disposable Vape', href: '/store/products?type=disposable' },
   {
-    label: 'Devices',
-    href: '/store/products?type=device',
+    label: 'Accessories',
+    href: '/store/products?search=accessories',
+    children: [
+      { label: 'All Accessories', href: '/store/products?search=accessories' },
+      { label: 'Cartridge', href: '/store/products?search=cartridge' },
+      { label: 'Charger', href: '/store/products?search=charger' },
+      { label: 'Coils', href: '/store/products?search=coil' },
+    ],
   },
-  {
-    label: 'All Products',
-    href: '/store/products',
-  },
+  { label: 'Blog', href: '#' },
 ]
 
 export default function StoreHeader() {
   const { count, toggleCart, hydrated } = useCart()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [scrolled, setScrolled] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      window.location.href = `/store/products?search=${encodeURIComponent(searchQuery.trim())}`
+    document.body.style.overflow = menuOpen ? 'hidden' : ''
+    return () => {
+      document.body.style.overflow = ''
     }
+  }, [menuOpen])
+
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault()
+    const query = searchQuery.trim()
+    if (query) window.location.href = `/store/products?search=${encodeURIComponent(query)}`
   }
 
   return (
     <>
-      {/* Announcement bar */}
       <div className="store-announcement">
-        ₱799 Order - DISCOUNT ON DELIVERY
+        <a href="/store/products">₱799 Order - DISCOUNT ON DELIVERY</a>
+        <a href="https://www.facebook.com/wvphvsvistaverde">Check out of FACEBOOK page for more updates! (Click here)</a>
       </div>
 
-      <header className={`store-header-blur ${scrolled ? 'scrolled' : ''}`}>
-        <div className="store-container flex h-16 items-center justify-between">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden">
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      <header className="store-header">
+        <div className="store-container store-header-top">
+          <button onClick={() => setMenuOpen(true)} className="store-icon-button store-mobile-only" aria-label="Open menu">
+            <Menu className="h-5 w-5" />
           </button>
 
-          <Link href="/store" className="text-lg font-semibold tracking-tight text-[#1D1D1F]">
-            VapeShop
+          <button onClick={() => setSearchOpen(!searchOpen)} className="store-icon-button store-desktop-only" aria-label="Search">
+            <Search className="h-5 w-5" />
+          </button>
+
+          <Link href="/store" className="store-logo" aria-label="VapeShop home">
+            <span>VAPE</span>
+            <span>SHOP</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
-            {navGroups.map((nav) => (
-              <Link
-                key={nav.label}
-                href={nav.href}
-                className="text-[0.8125rem] text-[#1D1D1F] tracking-wide hover:opacity-60 transition-opacity"
-              >
-                {nav.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <button onClick={() => setSearchOpen(!searchOpen)} className="text-[#1D1D1F] hover:opacity-60 transition-opacity">
+          <div className="store-header-actions">
+            <Link href="/login" className="store-icon-button store-desktop-only" aria-label="Account">
+              <UserRound className="h-5 w-5" />
+            </Link>
+            <button onClick={() => setSearchOpen(!searchOpen)} className="store-icon-button store-mobile-only" aria-label="Search">
               <Search className="h-5 w-5" />
             </button>
-            <button onClick={toggleCart} className="relative text-[#1D1D1F] hover:opacity-60 transition-opacity">
+            <button onClick={toggleCart} className="store-icon-button relative" aria-label="Cart">
               <ShoppingBag className="h-5 w-5" />
-              {count > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#1D1D1F] px-1 text-[10px] font-medium text-white">
-                  {count > 9 ? '9+' : count}
-                </span>
+              {hydrated && count > 0 && (
+                <span className="store-cart-count">{count > 9 ? '9+' : count}</span>
               )}
             </button>
           </div>
         </div>
 
-        {/* Search overlay */}
+        <nav className="store-container store-desktop-nav">
+          {navGroups.map((nav) => (
+            <div key={nav.label} className="store-nav-item">
+              <Link href={nav.href} className="store-nav-link">
+                {nav.label}
+                {nav.children && <ChevronDown className="h-3.5 w-3.5" />}
+              </Link>
+              {nav.children && (
+                <div className="store-nav-dropdown">
+                  {nav.children.map((child) => (
+                    <Link key={child.label} href={child.href} className="store-dropdown-link">
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </nav>
+
         {searchOpen && (
-          <div className="border-t border-[#E5E5E7] bg-white">
-            <div className="store-container py-4">
-              <form onSubmit={handleSearch} className="flex gap-2">
+          <div className="store-search-panel">
+            <div className="store-container">
+              <form onSubmit={handleSearch} className="store-search-form">
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(event) => setSearchQuery(event.target.value)}
                   placeholder="Search products..."
                   autoFocus
-                  className="store-input flex-1"
+                  className="store-input"
                 />
-                <button type="submit" className="store-btn-primary">Search</button>
+                <button type="submit" className="store-button">Search</button>
               </form>
             </div>
           </div>
         )}
       </header>
 
-      {/* Mobile menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[60] bg-white pt-[120px] md:hidden">
-          <div className="store-container flex flex-col gap-4">
+        <div className="store-mobile-menu md:hidden">
+          <div className="store-mobile-menu-head">
+            <Link href="/store" className="store-logo small" onClick={() => setMenuOpen(false)}>
+              <span>VAPE</span>
+              <span>SHOP</span>
+            </Link>
+            <button onClick={() => setMenuOpen(false)} className="store-icon-button" aria-label="Close menu">
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="store-container store-mobile-links">
             {navGroups.map((nav) => (
-              <Link
-                key={nav.label}
-                href={nav.href}
-                className="text-lg text-[#1D1D1F] border-b border-[#E5E5E7] pb-3"
-                onClick={() => setMenuOpen(false)}
-              >
+              <Link key={nav.label} href={nav.href} className="store-mobile-link" onClick={() => setMenuOpen(false)}>
                 {nav.label}
               </Link>
             ))}

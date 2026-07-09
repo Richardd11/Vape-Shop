@@ -2,8 +2,8 @@
 
 export default function ProductSortSelect({ currentSort }: { currentSort: string }) {
   return (
-    <div className="flex items-center gap-2">
-      <label className="text-xs text-[#86868B]">Sort by:</label>
+    <div className="store-sort">
+      <label>Sort by:</label>
       <select
         defaultValue={currentSort}
         onChange={(e) => {

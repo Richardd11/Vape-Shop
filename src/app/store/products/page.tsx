@@ -7,7 +7,7 @@ import type { Product, Brand, Category } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
-async function ProductsGrid({ type, brand, sort }: { type?: string; brand?: string; sort?: string }) {
+async function ProductsGrid({ type, brand, sort, search }: { type?: string; brand?: string; sort?: string; search?: string }) {
   const supabase = await createClient()
 
   let query = supabase
@@ -16,6 +16,7 @@ async function ProductsGrid({ type, brand, sort }: { type?: string; brand?: stri
 
   if (type) query = query.eq('type', type)
   if (brand) query = query.eq('brand_id', brand)
+  if (search) query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,brand_name.ilike.%${search}%`)
 
   switch (sort) {
     case 'price-asc': query = query.order('base_price', { ascending: true }); break
@@ -31,7 +32,7 @@ async function ProductsGrid({ type, brand, sort }: { type?: string; brand?: stri
     return (
       <div className="py-16 text-center">
         <p className="text-sm text-[#86868B]">No products found</p>
-        <a href="/store/products" className="mt-4 inline-block border border-[#D2D2D7] px-6 py-2 text-xs font-medium uppercase tracking-wider text-[#1D1D1F] hover:bg-[#1D1D1F] hover:text-white transition-all">
+        <a href="/store/products" className="store-button-secondary mt-4 inline-flex">
           Clear Filters
         </a>
       </div>
@@ -40,8 +41,8 @@ async function ProductsGrid({ type, brand, sort }: { type?: string; brand?: stri
 
   return (
     <>
-      <p className="mb-4 text-xs text-[#86868B]">{products.length} products</p>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+      <p className="store-product-count">{products.length} products</p>
+      <div className="store-product-grid collection-grid">
         {products.map((product) => (
           <ProductCard key={product.id} product={product as unknown as Product} />
         ))}
@@ -64,28 +65,29 @@ export default async function ProductsPage({
   ])
 
   const currentSort = params.sort || 'created-desc'
+  const currentTitle = params.search
+    ? `Search: ${params.search}`
+    : params.type === 'disposable' ? 'Disposable Vape' :
+      params.type === 'pod' ? 'Pod Kits / Refillable' :
+      params.type === 'juice' ? 'E-Juice' :
+      params.type === 'device' ? 'Devices' : 'Products'
 
   return (
-    <div className="store-container py-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-[#1D1D1F] mb-1">
-        {params.type === 'disposable' ? 'Disposable Vape' :
-         params.type === 'pod' ? 'Pod Kits' :
-         params.type === 'juice' ? 'E-Liquids' :
-         params.type === 'device' ? 'Devices' : 'All Products'}
-      </h1>
-      <p className="text-sm text-[#86868B] mb-8">Premium vaping products</p>
+    <div className="store-container store-collection-page">
+      <div className="store-collection-hero">
+        <h1>{currentTitle}</h1>
+      </div>
 
-      <div className="flex flex-col gap-8 md:flex-row">
+      <div className="store-collection-layout">
         <ProductFilters brands={(brands ?? []) as Brand[]} categories={(categories ?? []) as Category[]} />
-        <div className="flex-1">
-          {/* Sort bar */}
-          <div className="mb-6 flex items-center justify-between">
-            <div className="hidden md:block" />
+        <div className="store-collection-results">
+          <div className="store-collection-toolbar">
+            <span className="store-filter-label">Filter:</span>
             <ProductSortSelect currentSort={currentSort} />
           </div>
 
           <Suspense fallback={
-            <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="store-product-grid collection-grid">
               {[1,2,3,4,5,6].map(i => (
                 <div key={i}>
                   <div className="aspect-square bg-[#F5F5F7] animate-pulse" />
@@ -98,7 +100,7 @@ export default async function ProductsPage({
               ))}
             </div>
           }>
-            <ProductsGrid type={params.type} brand={params.brand} sort={currentSort} />
+            <ProductsGrid type={params.type} brand={params.brand} sort={currentSort} search={params.search} />
           </Suspense>
         </div>
       </div>

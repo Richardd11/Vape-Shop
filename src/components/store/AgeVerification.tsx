@@ -7,7 +7,8 @@ export default function AgeVerification() {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    if (!isAgeVerified()) setShow(true)
+    const timer = window.setTimeout(() => setShow(!isAgeVerified()), 0)
+    return () => window.clearTimeout(timer)
   }, [])
 
   const handleYes = () => {
@@ -22,23 +23,22 @@ export default function AgeVerification() {
   if (!show) return null
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60">
-      <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#F5F5F7]">
-          <span className="text-2xl">🔞</span>
-        </div>
-        <h2 className="text-xl font-semibold text-[#1D1D1F]">Are you 18 or older?</h2>
-        <p className="mt-2 text-sm text-[#86868B]">
-          You must be at least 18 years old to view this store.
+    <div className="store-age-overlay">
+      <div className="store-age-modal" role="dialog" aria-modal="true" aria-labelledby="age-title">
+        <div className="store-age-mark">18+</div>
+        <h2 id="age-title">AGE VERIFICATION!</h2>
+        <p>
+          To use the Vape Shop website you must be at least 18 years old or above.
+          Please verify your age before entering the site.
         </p>
-        <div className="mt-6 flex gap-3">
-          <button onClick={handleNo} className="store-btn-outline flex-1">
-            No
-          </button>
-          <button onClick={handleYes} className="store-btn-primary flex-1">
-            Yes
-          </button>
+        <div className="store-age-actions">
+          <button onClick={handleYes} className="store-age-button">I am 18+</button>
+          <button onClick={handleNo} className="store-age-button">Under 18</button>
         </div>
+        <p className="store-age-warning">
+          WARNING: Some of our products may contain nicotine. Nicotine is addictive.
+          Minors are strictly prohibited from entering this website.
+        </p>
       </div>
     </div>
   )

@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { ShoppingBag, ChevronLeft } from 'lucide-react'
+import { ChevronLeft, ShoppingBag } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { formatCurrency } from '@/lib/utils'
@@ -40,7 +40,6 @@ export default function ProductDetailPage() {
       if (productData) {
         setProduct(productData as unknown as ProductWithStock)
 
-        // Fetch variants for flavor/nicotine options
         const { data: variants } = await supabase
           .from('product_variants')
           .select('*, flavors(name)')
@@ -49,11 +48,11 @@ export default function ProductDetailPage() {
 
         if (variants?.length) {
           const flavors = [...new Set(variants
-            .filter(v => v.flavors?.name)
-            .map(v => v.flavors!.name))] as string[]
+            .filter((variant) => variant.flavors?.name)
+            .map((variant) => variant.flavors!.name))] as string[]
           const nicotines = [...new Set(variants
-            .filter(v => v.nicotine_strength)
-            .map(v => v.nicotine_strength!))]
+            .filter((variant) => variant.nicotine_strength)
+            .map((variant) => variant.nicotine_strength!))]
 
           if (flavors.length) setSelectedFlavor(flavors[0])
           if (nicotines.length) setSelectedNicotine(nicotines[0])
@@ -62,6 +61,7 @@ export default function ProductDetailPage() {
 
       setLoading(false)
     }
+
     load()
   }, [params.id])
 
@@ -69,10 +69,10 @@ export default function ProductDetailPage() {
     return (
       <div className="store-container py-16">
         <div className="animate-pulse space-y-4">
-          <div className="aspect-square rounded-2xl bg-[#F5F5F7] md:aspect-auto md:h-[400px]" />
-          <div className="h-6 w-48 bg-[#F5F5F7] rounded" />
-          <div className="h-4 w-24 bg-[#F5F5F7] rounded" />
-          <div className="h-8 w-32 bg-[#F5F5F7] rounded" />
+          <div className="aspect-square bg-[#f5f5f5] md:aspect-auto md:h-[520px]" />
+          <div className="h-6 w-48 rounded bg-[#f5f5f5]" />
+          <div className="h-4 w-24 rounded bg-[#f5f5f5]" />
+          <div className="h-8 w-32 rounded bg-[#f5f5f5]" />
         </div>
       </div>
     )
@@ -81,8 +81,8 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <div className="store-container py-16 text-center">
-        <p className="text-sm text-[#86868B]">Product not found</p>
-        <Link href="/store/products" className="store-btn-outline mt-4 inline-flex">
+        <p className="text-sm text-[#767676]">Product not found</p>
+        <Link href="/store/products" className="store-button-secondary mt-4">
           Back to Products
         </Link>
       </div>
@@ -93,7 +93,7 @@ export default function ProductDetailPage() {
   const isOutOfStock = stock <= 0
 
   const handleAddToCart = () => {
-    const label = [selectedFlavor, selectedNicotine].filter(Boolean).join(' · ')
+    const label = [selectedFlavor, selectedNicotine].filter(Boolean).join(' - ')
     addItem({
       product_id: product.id,
       name: product.name,
@@ -107,42 +107,31 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <div className="store-container py-8">
-      <Link
-        href="/store/products"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-[#86868B] hover:text-[#1D1D1F]"
-      >
+    <div className="store-container store-product-detail">
+      <Link href="/store/products" className="store-back-link">
         <ChevronLeft className="h-4 w-4" /> Back to Products
       </Link>
 
-      <div className="grid gap-8 md:grid-cols-2">
-        <div className="flex items-center justify-center rounded-2xl bg-[#F5F5F7] p-12">
+      <div className="store-product-detail-grid">
+        <div className="store-product-gallery">
           {product.image_url ? (
-            <img
-              src={product.image_url}
-              alt={product.name}
-              className="max-h-[400px] w-full object-contain"
-            />
+            <img src={product.image_url} alt={product.name} />
           ) : (
-            <div className="text-6xl text-[#D2D2D7]">📦</div>
+            <div className="store-product-placeholder">VAPE SHOP</div>
           )}
         </div>
 
-        <div>
+        <div className="store-product-summary">
           <StockBadge stockQty={stock} />
-          <h1 className="mt-3 text-2xl font-semibold text-[#1D1D1F] sm:text-3xl">{product.name}</h1>
-          {product.brand_name && (
-            <p className="mt-1 text-sm text-[#86868B]">{product.brand_name}</p>
-          )}
-          <p className="mt-4 text-3xl font-semibold text-[#1D1D1F]">{formatCurrency(product.base_price)}</p>
+          <h1>{product.name}</h1>
+          {product.brand_name && <p className="store-product-detail-vendor">{product.brand_name}</p>}
+          <p className="store-product-detail-price">{formatCurrency(product.base_price)}</p>
 
           {product.description && (
-            <p className="store-divider mt-6 pt-6 text-sm leading-relaxed text-[#86868B]">
-              {product.description}
-            </p>
+            <p className="store-product-description">{product.description}</p>
           )}
 
-          <div className="store-divider mt-6 space-y-6 pt-6">
+          <div className="store-product-options">
             {(product.type === 'juice' || product.type === 'pod') && selectedFlavor && (
               <VariantPicker
                 label="Flavor"
@@ -161,15 +150,15 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          <div className="store-divider mt-6 pt-6">
-            <div className="flex items-center gap-4">
+          <div className="store-product-purchase">
+            <div className="store-product-buy-row">
               <QuantityStepper value={quantity} max={Math.max(stock, 99)} onChange={setQuantity} />
               <button
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className="store-btn-primary flex-1 gap-2"
+                className="store-button flex-1 gap-2"
               >
-                {added ? '✓ Added!' : (
+                {added ? 'Added!' : (
                   <>
                     <ShoppingBag className="h-4 w-4" />
                     {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
