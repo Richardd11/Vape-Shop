@@ -410,8 +410,8 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart }: { produc
   const outOfStock = totalStock === 0 && product.product_variants.length > 0;
 
   return (
-    <button onClick={() => !outOfStock && onAddToCart(product)} disabled={outOfStock} className={cn("flex flex-col rounded-lg border text-left transition-all cursor-pointer overflow-hidden bg-[var(--color-surface-base)] border-[var(--color-border-default)] hover:border-brand-400/30 hover:shadow-md hover:-translate-y-0.5", outOfStock && "opacity-50 cursor-not-allowed")}>
-      <div className="relative w-full aspect-[4/3] bg-[var(--color-surface-root)]">
+    <button onClick={() => !outOfStock && onAddToCart(product)} disabled={outOfStock} className={cn("flex flex-col h-full w-full rounded-lg border text-left transition-all cursor-pointer overflow-hidden bg-[var(--color-surface-base)] border-[var(--color-border-default)] hover:border-brand-400/30 hover:shadow-md hover:-translate-y-0.5", outOfStock && "opacity-50 cursor-not-allowed")}>
+      <div className="relative w-full shrink-0 aspect-[4/3] bg-[var(--color-surface-root)]">
         {product.image_url && !imgError ? (
           <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" loading="lazy" onError={() => setImgError(true)} />
         ) : (
