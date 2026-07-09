@@ -221,7 +221,7 @@ export default function POSPage() {
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3"><Search size={40} className="text-[var(--color-text-tertiary)]/30" /><p className="text-[var(--color-text-tertiary)]">No products found</p></div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 auto-rows-fr">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} onAddToCart={handleProductClick} />
               ))}
@@ -410,28 +410,28 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart }: { produc
   const outOfStock = totalStock === 0 && product.product_variants.length > 0;
 
   return (
-    <button onClick={() => !outOfStock && onAddToCart(product)} disabled={outOfStock} className={cn("flex flex-col rounded-xl border text-left transition-all cursor-pointer overflow-hidden bg-[var(--color-surface-base)] border-[var(--color-border-default)] hover:border-brand-400/30 hover:shadow-lg hover:-translate-y-0.5", outOfStock && "opacity-50 cursor-not-allowed")}>
-      <div className="relative w-full aspect-square bg-[var(--color-surface-root)]">
+    <button onClick={() => !outOfStock && onAddToCart(product)} disabled={outOfStock} className={cn("flex flex-col rounded-lg border text-left transition-all cursor-pointer overflow-hidden bg-[var(--color-surface-base)] border-[var(--color-border-default)] hover:border-brand-400/30 hover:shadow-md hover:-translate-y-0.5", outOfStock && "opacity-50 cursor-not-allowed")}>
+      <div className="relative w-full aspect-[4/3] bg-[var(--color-surface-root)]">
         {product.image_url && !imgError ? (
           <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" loading="lazy" onError={() => setImgError(true)} />
         ) : (
-          <div className="w-full h-full flex items-center justify-center"><Package size={32} className="text-[var(--color-text-tertiary)]/30" /></div>
+          <div className="w-full h-full flex items-center justify-center"><Package size={24} className="text-[var(--color-text-tertiary)]/30" /></div>
         )}
-        <span className={cn("absolute top-2 left-2 badge", PRODUCT_TYPE_COLORS[product.type])}>{PRODUCT_TYPE_LABELS[product.type]}</span>
-        {outOfStock && <span className="absolute top-2 right-2 badge badge-danger text-[10px]">Out</span>}
+        <span className={cn("absolute top-1.5 left-1.5 badge text-[9px] px-1.5 py-0.5", PRODUCT_TYPE_COLORS[product.type])}>{PRODUCT_TYPE_LABELS[product.type]}</span>
+        {outOfStock && <span className="absolute top-1.5 right-1.5 badge badge-danger text-[9px] px-1.5 py-0.5">Out</span>}
       </div>
-      <div className="p-2.5 flex flex-col flex-1 min-h-0">
-        <p className="text-[0.8125rem] font-semibold text-[var(--color-text-primary)] leading-tight line-clamp-2">{product.name}</p>
-        <p className="text-[0.6875rem] text-[var(--color-text-secondary)] mt-0.5">{(product.brands as any)?.name}</p>
+      <div className="p-1.5 flex flex-col flex-1 min-h-0 gap-0.5">
+        <p className="text-[0.75rem] font-semibold text-[var(--color-text-primary)] leading-tight line-clamp-2">{product.name}</p>
+        <p className="text-[0.625rem] text-[var(--color-text-secondary)]">{(product.brands as any)?.name}</p>
         {(() => {
-          const flavors = product.product_variants?.map((v: any) => v.flavors?.name).filter((n: string, i: number, arr: string[]) => n && arr.indexOf(n) === i).slice(0, 3) as string[];
+          const flavors = product.product_variants?.map((v: any) => v.flavors?.name).filter((n: string, i: number, arr: string[]) => n && arr.indexOf(n) === i).slice(0, 2) as string[];
           if (!flavors.length) return null;
-          const extra = product.product_variants.length > 3 ? product.product_variants.length - 3 : 0;
-          return <div className="flex flex-wrap gap-1 mt-1.5">{flavors.map((f: string) => <span key={f} className="text-[0.6rem] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none truncate max-w-[80px]">{f}</span>)}{extra > 0 && <span className="text-[0.6rem] px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none">+{extra}</span>}</div>;
+          const extra = product.product_variants.length > 2 ? product.product_variants.length - 2 : 0;
+          return <div className="flex flex-wrap gap-0.5">{flavors.map((f: string) => <span key={f} className="text-[0.55rem] px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none truncate max-w-[60px]">{f}</span>)}{extra > 0 && <span className="text-[0.55rem] px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none">+{extra}</span>}</div>;
         })()}
-        <div className="flex items-center justify-between mt-auto pt-2">
-          <p className="text-[0.8125rem] font-bold text-brand-400">{formatCurrency(product.base_price)}</p>
-          <p className="text-[0.65rem] text-[var(--color-text-tertiary)]">{product.product_variants.length > 1 ? `${product.product_variants.length} vars` : totalStock > 0 ? `${totalStock}` : ""}</p>
+        <div className="flex items-center justify-between mt-auto">
+          <p className="text-[0.75rem] font-bold text-brand-400">{formatCurrency(product.base_price)}</p>
+          <p className="text-[0.6rem] text-[var(--color-text-tertiary)]">{product.product_variants.length > 1 ? `${product.product_variants.length}` : totalStock > 0 ? `${totalStock}` : ""}</p>
         </div>
       </div>
     </button>
