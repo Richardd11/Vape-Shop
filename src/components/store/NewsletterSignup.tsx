@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('')
@@ -19,14 +20,16 @@ export default function NewsletterSignup() {
         <h2>JOIN OUR NEWSLETTER</h2>
         <p>Subscribe for exclusive deals, new arrivals, and restock alerts.</p>
         {subscribed ? (
-          <div className="store-newsletter-success">Thanks for subscribing!</div>
+          <div className="store-newsletter-success inline-flex items-center gap-2">
+            <Check className="h-4 w-4" /> Thanks for subscribing!
+          </div>
         ) : (
           <form onSubmit={handleSubmit} className="store-newsletter-form">
             <input
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="Email"
+              placeholder="Enter your email"
               required
             />
             <button type="submit">Subscribe</button>

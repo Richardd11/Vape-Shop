@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
+import { useState, useCallback } from 'react'
 import { ShoppingBag } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
 import { useCart } from './StoreCartProvider'
+import CartToast from './CartToast'
 import type { Product } from '@/lib/types'
 
 interface ProductCardProps {
@@ -12,11 +14,25 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart()
+  const [showToast, setShowToast] = useState(false)
   const stock = product.total_stock ?? 0
   const isOutOfStock = stock <= 0
   const price = product.base_price
   const comparePrice = product.cost_price && product.cost_price > price ? product.cost_price : null
   const isSale = comparePrice !== null
+
+  const handleAdd = useCallback(() => {
+    addItem({
+      product_id: product.id,
+      name: product.name,
+      price,
+      quantity: 1,
+      image_url: product.image_url || '',
+    })
+    setShowToast(true)
+  }, [addItem, product.id, product.name, price, product.image_url])
+
+  const hideToast = useCallback(() => setShowToast(false), [])
 
   return (
     <article className="store-product-card">
@@ -43,15 +59,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         {!isOutOfStock && (
           <button
-            onClick={() =>
-              addItem({
-                product_id: product.id,
-                name: product.name,
-                price,
-                quantity: 1,
-                image_url: product.image_url || '',
-              })
-            }
+            onClick={handleAdd}
             className="store-quick-add"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
@@ -59,6 +67,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           </button>
         )}
       </div>
+
+      <CartToast message="Added to cart" visible={showToast} onHide={hideToast} />
     </article>
   )
 }

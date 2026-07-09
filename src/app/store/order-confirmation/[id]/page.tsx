@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { Check, Clock, XCircle, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, cn } from '@/lib/utils'
 import type { StoreOrder, Payment } from '@/lib/types'
 
 type PaymentState = 'loading' | 'paid' | 'pending' | 'failed' | 'expired'
@@ -276,6 +276,5 @@ export default function OrderConfirmationPage() {
   )
 }
 
-function cn(...inputs: (string | false | null | undefined)[]) {
-  return inputs.filter(Boolean).join(' ')
-}
+
+
