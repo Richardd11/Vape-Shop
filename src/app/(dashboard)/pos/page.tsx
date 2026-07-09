@@ -221,7 +221,7 @@ export default function POSPage() {
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-3"><Search size={40} className="text-[var(--color-text-tertiary)]/30" /><p className="text-[var(--color-text-tertiary)]">No products found</p></div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} onAddToCart={handleProductClick} />
               ))}
@@ -410,28 +410,38 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart }: { produc
   const outOfStock = totalStock === 0 && product.product_variants.length > 0;
 
   return (
-    <button onClick={() => !outOfStock && onAddToCart(product)} disabled={outOfStock} className={cn("flex flex-col h-full w-full rounded-lg border text-left transition-all cursor-pointer overflow-hidden bg-[var(--color-surface-base)] border-[var(--color-border-default)] hover:border-brand-400/30 hover:shadow-md hover:-translate-y-0.5", outOfStock && "opacity-50 cursor-not-allowed")}>
+    <button onClick={() => !outOfStock && onAddToCart(product)} disabled={outOfStock} className={cn("group flex flex-col h-full w-full rounded-xl border text-left transition-all duration-300 cursor-pointer overflow-hidden bg-[var(--color-surface-base)] border-[var(--color-border-default)] hover:border-brand-500/50 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-1", outOfStock && "opacity-50 cursor-not-allowed hover:translate-y-0 hover:shadow-none hover:border-[var(--color-border-default)]")}>
       <div className="relative w-full shrink-0 aspect-[4/3] bg-[var(--color-surface-root)] overflow-hidden">
         {product.image_url && !imgError ? (
-          <img src={product.image_url} alt={product.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" onError={() => setImgError(true)} />
+          <img src={product.image_url} alt={product.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" onError={() => setImgError(true)} />
         ) : (
-          <div className="absolute inset-0 w-full h-full flex items-center justify-center"><Package size={24} className="text-[var(--color-text-tertiary)]/30" /></div>
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110"><Package size={32} className="text-[var(--color-text-tertiary)]/30" /></div>
         )}
-        <span className={cn("absolute top-1.5 left-1.5 badge text-[9px] px-1.5 py-0.5", PRODUCT_TYPE_COLORS[product.type])}>{PRODUCT_TYPE_LABELS[product.type]}</span>
-        {outOfStock && <span className="absolute top-1.5 right-1.5 badge badge-danger text-[9px] px-1.5 py-0.5">Out</span>}
+        
+        {/* Interactive Overlay */}
+        {!outOfStock && (
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-end p-2.5">
+            <div className="bg-brand-500 text-white p-1.5 rounded-full shadow-lg transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+              <Plus size={18} strokeWidth={3} />
+            </div>
+          </div>
+        )}
+
+        <span className={cn("absolute top-2 left-2 badge text-[10px] px-2 py-0.5 font-bold shadow-sm backdrop-blur-md bg-opacity-90", PRODUCT_TYPE_COLORS[product.type])}>{PRODUCT_TYPE_LABELS[product.type]}</span>
+        {outOfStock && <span className="absolute top-2 right-2 badge badge-danger text-[10px] px-2 py-0.5 font-bold shadow-sm backdrop-blur-md bg-opacity-90">Out of Stock</span>}
       </div>
-      <div className="p-1.5 flex flex-col flex-1 min-h-0 gap-0.5">
-        <p className="text-[0.75rem] font-semibold text-[var(--color-text-primary)] leading-tight line-clamp-2">{product.name}</p>
-        <p className="text-[0.625rem] text-[var(--color-text-secondary)]">{(product.brands as any)?.name}</p>
+      <div className="p-3 flex flex-col flex-1 min-h-0 gap-1 w-full">
+        <p className="text-sm font-bold text-[var(--color-text-primary)] leading-snug line-clamp-2 group-hover:text-brand-400 transition-colors">{product.name}</p>
+        <p className="text-xs text-[var(--color-text-secondary)] font-medium">{(product.brands as any)?.name}</p>
         {(() => {
           const flavors = product.product_variants?.map((v: any) => v.flavors?.name).filter((n: string, i: number, arr: string[]) => n && arr.indexOf(n) === i).slice(0, 2) as string[];
           if (!flavors.length) return null;
           const extra = product.product_variants.length > 2 ? product.product_variants.length - 2 : 0;
-          return <div className="flex flex-wrap gap-0.5">{flavors.map((f: string) => <span key={f} className="text-[0.55rem] px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none truncate max-w-[60px]">{f}</span>)}{extra > 0 && <span className="text-[0.55rem] px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none">+{extra}</span>}</div>;
+          return <div className="flex flex-wrap gap-1 mt-0.5">{flavors.map((f: string) => <span key={f} className="text-[0.65rem] px-1.5 py-0.5 rounded-md bg-[var(--color-surface-raised)] border border-[var(--color-border-subtle)] text-[var(--color-text-secondary)] leading-none truncate max-w-[75px]">{f}</span>)}{extra > 0 && <span className="text-[0.65rem] px-1.5 py-0.5 rounded-md bg-[var(--color-surface-raised)] border border-[var(--color-border-subtle)] text-[var(--color-text-secondary)] leading-none">+{extra}</span>}</div>;
         })()}
-        <div className="flex items-center justify-between mt-auto">
-          <p className="text-[0.75rem] font-bold text-brand-400">{formatCurrency(product.base_price)}</p>
-          <p className="text-[0.6rem] text-[var(--color-text-tertiary)]">{product.product_variants.length > 1 ? `${product.product_variants.length}` : totalStock > 0 ? `${totalStock}` : ""}</p>
+        <div className="flex items-end justify-between mt-auto pt-2">
+          <p className="text-sm font-black text-brand-400">{formatCurrency(product.base_price)}</p>
+          <p className="text-[0.65rem] font-medium text-[var(--color-text-tertiary)]">{product.product_variants.length > 1 ? `${product.product_variants.length} Variants` : totalStock > 0 ? `${totalStock} in stock` : ""}</p>
         </div>
       </div>
     </button>
