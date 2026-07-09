@@ -421,17 +421,13 @@ const ProductCard = memo(function ProductCard({ product, onAddToCart }: { produc
         {outOfStock && <span className="absolute top-1.5 right-1.5 badge badge-danger text-[9px] px-1.5 py-0.5">Out</span>}
       </div>
       <div className="p-1.5 flex flex-col flex-1 min-h-0 gap-0.5">
-        <p className="text-[0.75rem] font-semibold text-[var(--color-text-primary)] leading-tight line-clamp-2">{product.name}</p>
-        <p className="text-[0.625rem] text-[var(--color-text-secondary)]">{(product.brands as any)?.name}</p>
-        {(() => {
-          const flavors = product.product_variants?.map((v: any) => v.flavors?.name).filter((n: string, i: number, arr: string[]) => n && arr.indexOf(n) === i).slice(0, 2) as string[];
-          if (!flavors.length) return null;
-          const extra = product.product_variants.length > 2 ? product.product_variants.length - 2 : 0;
-          return <div className="flex flex-wrap gap-0.5">{flavors.map((f: string) => <span key={f} className="text-[0.55rem] px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none truncate max-w-[60px]">{f}</span>)}{extra > 0 && <span className="text-[0.55rem] px-1 py-0.5 rounded bg-white/[0.04] border border-white/[0.04] text-[var(--color-text-tertiary)] leading-none">+{extra}</span>}</div>;
-        })()}
+        <p className="text-[0.6875rem] font-semibold text-[var(--color-text-primary)] leading-tight line-clamp-1">{product.name}</p>
+        <div className="flex items-center justify-between gap-1">
+          <p className="text-[0.6rem] text-[var(--color-text-secondary)] truncate">{product.brands?.name ?? ""}</p>
+          <p className="text-[0.55rem] text-[var(--color-text-tertiary)] shrink-0">{product.product_variants.length > 1 ? `${product.product_variants.length}v` : totalStock > 0 ? `${totalStock}` : ""}</p>
+        </div>
         <div className="flex items-center justify-between mt-auto">
           <p className="text-[0.75rem] font-bold text-brand-400">{formatCurrency(product.base_price)}</p>
-          <p className="text-[0.6rem] text-[var(--color-text-tertiary)]">{product.product_variants.length > 1 ? `${product.product_variants.length}` : totalStock > 0 ? `${totalStock}` : ""}</p>
         </div>
       </div>
     </button>
